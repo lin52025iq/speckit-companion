@@ -78,7 +78,7 @@ export function maybeShowActivationInstallNudge(
         const installAction = '安装';
         const dismissAction = '不再提示';
         const shown = vscode.window.showInformationMessage(
-            '此项目正在使用 spec-kit。安装 SpecKit Companion 扩展即可解锁实时状态、可恢复执行、复杂度快速路径和 Living Specs 🌱。',
+            '此项目已在使用 Spec Kit。安装 SpecKit Companion 后，可查看实时执行状态、从中断处继续、使用小改动快速流程，并维护 Living Specs 🌱。',
             installAction,
             dismissAction
         );
