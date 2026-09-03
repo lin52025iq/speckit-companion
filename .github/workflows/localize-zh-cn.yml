@@ -8,6 +8,7 @@ on:
       - package.json
       - scripts/localize-package-zh-cn.mjs
       - scripts/add-build-vsix-script.mjs
+      - scripts/set-fork-publisher.mjs
       - .github/workflows/localize-zh-cn.yml
 
 permissions:
@@ -28,6 +29,8 @@ jobs:
         run: node scripts/localize-package-zh-cn.mjs
       - name: Add one-command VSIX build script
         run: node scripts/add-build-vsix-script.mjs
+      - name: Set fork publisher
+        run: node scripts/set-fork-publisher.mjs
       - name: Commit generated manifest
         run: |
           if git diff --quiet -- package.json; then
