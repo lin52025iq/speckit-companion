@@ -7,7 +7,7 @@ import { ActivityPanel } from './components/ActivityPanel';
 import { ActivityErrorBoundary } from './components/ActivityErrorBoundary';
 import { markdownHtml, navState, showingOverview, viewerState } from './signals';
 import { restoreComments, clearAllRefinements } from './editor';
-import { t } from '../shared/i18n';
+import { installDomLocalization, t } from '../shared/i18n';
 
 export interface AppProps {
     specStatus: string;
@@ -27,6 +27,11 @@ export function App({ specStatus }: AppProps) {
     useEffect(() => {
         if (showOverview) setHasMountedActivity(true);
     }, [showOverview]);
+
+    // Keep canonical Markdown/source strings untouched and localize only the
+    // rendered Webview surface. The observer also covers Preact updates and
+    // dynamically rendered Overview/activity content.
+    useEffect(() => installDomLocalization(document.body), []);
 
     useEffect(() => {
         if (html && contentRef.current) {
