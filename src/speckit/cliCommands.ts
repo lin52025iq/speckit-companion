@@ -33,27 +33,27 @@ export function registerCliCommands(
             const pick = await vscode.window.showQuickPick(
                 [
                     {
-                        label: '$(sync) Upgrade All',
-                        description: "Refresh the spec-kit CLI and this project's scaffolding",
+                        label: '$(sync) 全部升级',
+                        description: '更新 spec-kit CLI 和当前项目脚手架',
                         commandId: 'speckit.upgradeAll',
                     },
                     {
-                        label: '$(refresh) Upgrade Project',
-                        description: "Refresh this workspace's scaffolding for your AI provider",
+                        label: '$(refresh) 升级项目',
+                        description: '为当前 AI 提供商更新此工作区的脚手架',
                         commandId: 'speckit.upgradeProject',
                     },
                     {
-                        label: '$(cloud-download) Upgrade CLI',
-                        description: 'Install the latest spec-kit CLI globally',
+                        label: '$(cloud-download) 升级 CLI',
+                        description: '全局安装最新版 spec-kit CLI',
                         commandId: 'speckit.upgradeCli',
                     },
                     {
-                        label: '$(cloud-download) Update spec-kit Extension',
-                        description: 'Install or force-update the companion spec-kit extension (Turbo + Capture)',
+                        label: '$(cloud-download) 更新 spec-kit 扩展',
+                        description: '安装或更新 Companion spec-kit 扩展（Turbo + Capture）',
                         commandId: 'speckit.companion.installSpecKitExtension',
                     },
                 ],
-                { title: 'SpecKit: Upgrade', placeHolder: 'Choose what to upgrade' }
+                { title: 'SpecKit：升级', placeHolder: '请选择要升级的内容' }
             );
             if (pick) {
                 await vscode.commands.executeCommand(pick.commandId);
