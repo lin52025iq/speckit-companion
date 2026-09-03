@@ -104,7 +104,7 @@ export function runInstallSpecKitExtension(workspaceRoot?: string): void {
     // `\` could otherwise break out of the quoting and inject shell — VS Code handles the
     // path as a structured value here, so it is never interpolated into a command string.
     const terminal = vscode.window.createTerminal({
-        name: 'Install spec-kit Extension',
+        name: '安装 spec-kit 扩展',
         ...(workspaceRoot ? { cwd: workspaceRoot } : {}),
     });
     terminal.show();
@@ -112,7 +112,7 @@ export function runInstallSpecKitExtension(workspaceRoot?: string): void {
     // comment line is unreliable: interactive zsh has INTERACTIVE_COMMENTS off by
     // default, so a leading `#` would be executed and error ("command not found: #")
     // instead of being treated as a comment. echo is portable across bash/zsh.
-    terminal.sendText(`echo "Prerequisite (github-source spec-kit CLI): ${CLI_PREREQ_COMMAND}"`);
+    terminal.sendText(`echo "前置要求（GitHub 源版 spec-kit CLI）：${CLI_PREREQ_COMMAND}"`);
     terminal.sendText(buildInstallCommand());
 }
 
