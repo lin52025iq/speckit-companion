@@ -75,17 +75,19 @@ export function maybeShowActivationInstallNudge(
         // Present the prompt first; only then burn the session slot and report the
         // show (under the SAME gate the prompt renders on), so a failed presentation
         // never over-counts telemetry or silently suppresses the nudge for the session.
+        const installAction = '安装';
+        const dismissAction = '不再提示';
         const shown = vscode.window.showInformationMessage(
-            'This project uses spec-kit. Install the SpecKit Companion extension to unlock live status, resumability, the complexity fast path, and living specs 🌱.',
-            'Install',
-            "Don't show again"
+            '此项目正在使用 spec-kit。安装 SpecKit Companion 扩展即可解锁实时状态、可恢复执行、复杂度快速路径和 Living Specs 🌱。',
+            installAction,
+            dismissAction
         );
         shownThisSession = true;
         reportInstallPromptShown('activation');
         void shown.then(choice => {
-            if (choice === 'Install') {
+            if (choice === installAction) {
                 void vscode.commands.executeCommand('speckit.companion.installNudge', 'activation');
-            } else if (choice === "Don't show again") {
+            } else if (choice === dismissAction) {
                 void vscode.commands.executeCommand('speckit.companion.dismissInstallNudge');
             }
         });
