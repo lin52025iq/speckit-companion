@@ -19,6 +19,17 @@ export interface BuildPromptOptions {
     specDir?: string | null;
 }
 
+const ZH_CN_OUTPUT_INSTRUCTION = [
+    '语言要求：默认使用简体中文与用户交流，并使用简体中文编写所有自然语言产物。',
+    'SpecKit 生成或更新的 spec.md、plan.md、tasks.md、research.md、data-model.md、quickstart.md、contracts、checklist、constitution、steering 文档及其他说明性 Markdown，其标题、正文、表格说明、验收场景、任务描述、进度说明和总结均使用简体中文。',
+    '代码、Shell 命令、文件路径、API、配置键、标识符、协议字段以及库/框架/产品专有名词保持原文，不要为了中文化而修改机器可读内容。',
+    '若上游模板或 Skill 使用英文指令，应按其语义执行，但最终面向用户和写入仓库的自然语言内容转换为中文；仅当用户明确要求其他语言时覆盖此规则。',
+].join('\n');
+
+function withChineseOutputInstruction(command: string): string {
+    return `${ZH_CN_OUTPUT_INSTRUCTION}\n\n${command}`;
+}
+
 function isContextInstructionsEnabled(): boolean {
     try {
         return vscode.workspace
@@ -76,10 +87,11 @@ export function bundledWriterPath(): string {
 
 export function buildPrompt(options: BuildPromptOptions): string {
     const { command, step, specDir } = options;
-    if (!isContextInstructionsEnabled()) return command;
-    if (!isKnownStep(step)) return command;
+    const localizedCommand = withChineseOutputInstruction(command);
+    if (!isContextInstructionsEnabled()) return localizedCommand;
+    if (!isKnownStep(step)) return localizedCommand;
     const preamble = renderPreamble(step as PromptStep, specDir ?? '', nowUtc(), companionRecordsSteps(command), bundledWriterPath());
-    return `${preamble}\n\n${command}`;
+    return `${preamble}\n\n${localizedCommand}`;
 }
 
 /**
@@ -87,11 +99,12 @@ export function buildPrompt(options: BuildPromptOptions): string {
  * the entire step lifecycle rather than a single step.
  */
 export function buildLifecyclePrompt(command: string, specDir?: string | null): string {
-    if (!isContextInstructionsEnabled()) return command;
+    const localizedCommand = withChineseOutputInstruction(command);
+    if (!isContextInstructionsEnabled()) return localizedCommand;
     // A multi-step command (only `:auto` reaches here) is an unattended run — it
     // finishes the whole lifecycle to `completed` with no user approval gate.
     const preamble = renderLifecyclePreamble(specDir ?? '', nowUtc(), companionRecordsSteps(command), bundledWriterPath(), /* unattended */ true);
-    return `${preamble}\n\n${command}`;
+    return `${preamble}\n\n${localizedCommand}`;
 }
 
 /**
@@ -112,11 +125,12 @@ export function buildSpecifyCreationPreamble(
     specDir?: string | null,
     telemetryInstanceId?: string | null
 ): string {
-    if (!isContextInstructionsEnabled()) return '';
+    if (!isContextInstructionsEnabled()) return ZH_CN_OUTPUT_INSTRUCTION;
     // specify is self-recorded only when the companion workflow runs AND its
     // extension is installed; otherwise the AI must close specify itself (#332).
     const companionRecords = workflowName === 'companion' && companionInstalledHere();
-    return renderSpecifyCreationLifecyclePreamble(workflowName, specDir ?? null, nowUtc(), companionRecords, bundledWriterPath(), telemetryInstanceId ?? null);
+    const preamble = renderSpecifyCreationLifecyclePreamble(workflowName, specDir ?? null, nowUtc(), companionRecords, bundledWriterPath(), telemetryInstanceId ?? null);
+    return `${preamble}\n\n${ZH_CN_OUTPUT_INSTRUCTION}`;
 }
 
 /**
