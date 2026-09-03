@@ -34,26 +34,26 @@ export function registerCliCommands(
                 [
                     {
                         label: '$(sync) 全部升级',
-                        description: '更新 spec-kit CLI 和当前项目脚手架',
+                        description: '同时对齐 Spec Kit CLI 和当前项目文件',
                         commandId: 'speckit.upgradeAll',
                     },
                     {
                         label: '$(refresh) 升级项目',
-                        description: '为当前 AI 提供商更新此工作区的脚手架',
+                        description: '按当前 AI 集成更新工作区中的 Spec Kit 项目文件',
                         commandId: 'speckit.upgradeProject',
                     },
                     {
                         label: '$(cloud-download) 升级 CLI',
-                        description: '全局安装最新版 spec-kit CLI',
+                        description: '安装此项目要求的 Spec Kit CLI 版本',
                         commandId: 'speckit.upgradeCli',
                     },
                     {
-                        label: '$(cloud-download) 更新 spec-kit 扩展',
-                        description: '安装或更新 Companion spec-kit 扩展（Turbo + Capture）',
+                        label: '$(cloud-download) 更新 Companion 扩展',
+                        description: '安装或强制更新 Companion 的 Spec Kit 扩展',
                         commandId: 'speckit.companion.installSpecKitExtension',
                     },
                 ],
-                { title: 'SpecKit：升级', placeHolder: '请选择要升级的内容' }
+                { title: 'SpecKit：升级', placeHolder: '选择需要升级或对齐的内容' }
             );
             if (pick) {
                 await vscode.commands.executeCommand(pick.commandId);
