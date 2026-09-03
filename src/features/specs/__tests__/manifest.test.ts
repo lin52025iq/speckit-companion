@@ -40,10 +40,10 @@ describe('sidebar contributions', () => {
         it('titles the four views for what they hold', () => {
             const byId = Object.fromEntries(views.map(v => [v.id, v.name]));
             expect(byId).toEqual({
-                'speckit.views.explorer': 'Specs',
-                'speckit.views.livingSpecs': 'Living Specs',
-                'speckit.views.steering': 'Steering',
-                'speckit.views.settings': 'Settings & Feedback',
+                'speckit.views.explorer': '规格',
+                'speckit.views.livingSpecs': 'Living Specs（活文档）',
+                'speckit.views.steering': '规则与引导',
+                'speckit.views.settings': '设置与反馈',
             });
         });
 
@@ -56,29 +56,29 @@ describe('sidebar contributions', () => {
 
     describe('command titles', () => {
         it.each([
-            ['speckit.create', 'New Spec'],
-            ['speckit.specs.filter', 'Filter…'],
-            ['speckit.specs.filter.clear', 'Clear Filter'],
-            ['speckit.specs.sort', 'Sort…'],
-            ['speckit.specs.collapseAll', 'Collapse All'],
-            ['speckit.specs.expandAll', 'Expand All'],
-            ['speckit.markCompleted', 'Mark Complete'],
-            ['speckit.specs.setStatus', 'Set Status…'],
-            ['speckit.group.markAllCompleted', 'Mark All Complete'],
-            ['speckit.group.archiveAll', 'Archive All'],
-            ['speckit.group.reactivateAll', 'Reactivate All'],
-            ['speckit.steering.create', 'New Steering Document…'],
-            ['speckit.specs.copyName', 'Copy Spec Name'],
-            ['speckit.specs.copyPath', 'Copy Spec Path'],
-            ['speckit.specs.revealInExplorer', 'Reveal in VS Code Explorer'],
-            ['speckit.specs.reveal', 'Reveal in File Manager'],
-            ['speckit.revealItemInExplorer', 'Reveal in VS Code Explorer'],
-            ['speckit.revealItemInOS', 'Reveal in File Manager'],
-            ['speckit.livingSpecs.drift', 'Check for Drift'],
-            ['speckit.livingSpecs.adopt', 'Adopt Code Area…'],
-            ['speckit.livingSpecs.sync', 'Sync living specs from my changes'],
-            ['speckit.livingSpecs.refresh', 'Refresh Living Specs'],
-            ['speckit.companion.installSpecKitExtension', 'Install Companion Extension'],
+            ['speckit.create', '新建规格'],
+            ['speckit.specs.filter', '筛选…'],
+            ['speckit.specs.filter.clear', '清除筛选'],
+            ['speckit.specs.sort', '排序…'],
+            ['speckit.specs.collapseAll', '全部折叠'],
+            ['speckit.specs.expandAll', '全部展开'],
+            ['speckit.markCompleted', '标记为已完成'],
+            ['speckit.specs.setStatus', '设置状态…'],
+            ['speckit.group.markAllCompleted', '全部标记为已完成'],
+            ['speckit.group.archiveAll', '全部归档'],
+            ['speckit.group.reactivateAll', '全部重新激活'],
+            ['speckit.steering.create', '新建引导文档…'],
+            ['speckit.specs.copyName', '复制规格名称'],
+            ['speckit.specs.copyPath', '复制规格路径'],
+            ['speckit.specs.revealInExplorer', '在 VS Code 资源管理器中显示'],
+            ['speckit.specs.reveal', '在文件管理器中显示'],
+            ['speckit.revealItemInExplorer', '在 VS Code 资源管理器中显示'],
+            ['speckit.revealItemInOS', '在文件管理器中显示'],
+            ['speckit.livingSpecs.drift', '检查漂移'],
+            ['speckit.livingSpecs.adopt', '纳入代码区域…'],
+            ['speckit.livingSpecs.sync', '根据我的更改同步 Living Specs'],
+            ['speckit.livingSpecs.refresh', '刷新 Living Specs'],
+            ['speckit.companion.installSpecKitExtension', '安装 Companion 扩展'],
         ])('%s is titled "%s"', (id, title) => {
             expect(commandTitle(id)).toBe(title);
         });
@@ -114,7 +114,7 @@ describe('sidebar contributions', () => {
             const entry = viewTitle.find(e => e.submenu === 'speckit.specs.titleMenu')!;
             expect(entry.command).toBeUndefined();
             const declared = submenus.find(s => s.id === 'speckit.specs.titleMenu')!;
-            expect(declared.label).toBe('More Actions…');
+            expect(declared.label).toBe('更多操作…');
             expect(declared.icon).toBe('$(ellipsis)');
         });
 
@@ -325,7 +325,7 @@ describe('zero-spec merged welcome — viewsWelcome', () => {
     const viewsWelcome: Array<{ view: string; contents: string; when?: string }> =
         manifest.contributes.viewsWelcome;
     const zeroSpecBlocks = viewsWelcome.filter(
-        w => w.view === SPECS_VIEW && w.contents.includes('Create your first spec')
+        w => w.view === SPECS_VIEW && w.contents.includes('创建第一个规格')
     );
 
     it('renders exactly one block per zero-spec state — two mutually-exclusive variants', () => {
@@ -348,8 +348,8 @@ describe('zero-spec merged welcome — viewsWelcome', () => {
 
     it('pins both welcome actions verbatim in each variant', () => {
         for (const block of zeroSpecBlocks) {
-            expect(block.contents).toContain('Create your first spec](command:speckit.create)');
-            expect(block.contents).toContain('Open a live sample](command:speckit.openSampleSpec)');
+            expect(block.contents).toContain('创建第一个规格](command:speckit.create)');
+            expect(block.contents).toContain('打开实时示例](command:speckit.openSampleSpec)');
         }
     });
 
