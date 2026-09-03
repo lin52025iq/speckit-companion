@@ -101,13 +101,13 @@ export async function warnIfSpecKitVersionMismatch(force = false): Promise<SpecK
     const installed = status.installedVersion ?? '未检测到';
     const project = status.projectVersion ?? '未记录';
     const choice = await vscode.window.showWarningMessage(
-        `Spec Kit 版本不一致：扩展目标版本 ${status.expectedVersion}，当前 CLI ${installed}，项目脚手架 ${project}。建议先完成版本对齐再继续运行 SpecKit。`,
-        '升级到匹配版本',
+        `Spec Kit 版本不一致：当前扩展要求 ${status.expectedVersion}，本机 CLI 为 ${installed}，项目记录版本为 ${project}。建议先统一版本，再继续运行 SpecKit 工作流。`,
+        '立即对齐版本',
         '稍后处理'
     );
     warningVisible = false;
 
-    if (choice === '升级到匹配版本') {
+    if (choice === '立即对齐版本') {
         void vscode.commands.executeCommand('speckit.upgradeAll');
     }
     return status;
