@@ -22,7 +22,15 @@ export interface BuildPromptOptions {
 const ZH_CN_OUTPUT_INSTRUCTION =
     '语言要求：除非用户明确要求其他语言，否则面向用户的回复以及 SpecKit 生成或更新的说明性文档默认使用简体中文。代码、命令、路径、API、配置键、标识符、协议字段和专有名词保持原文；英文模板按语义执行，不改动机器可读内容。';
 
+function shouldAddChineseOutputInstruction(command: string): boolean {
+    const verb = command.trim().split(/\s+/, 1)[0] ?? '';
+    // This guidance belongs to SpecKit workflow dispatches. Do not alter generic
+    // strings or debug/raw prompts merely because they pass through this helper.
+    return /^\/(?:speckit(?:[.-]|$)|sdd:)/i.test(verb);
+}
+
 function withChineseOutputInstruction(command: string): string {
+    if (!shouldAddChineseOutputInstruction(command)) return command;
     return `${ZH_CN_OUTPUT_INSTRUCTION}\n\n${command}`;
 }
 
