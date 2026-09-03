@@ -1510,7 +1510,8 @@
     "clips:sync": "node website/scripts/sync-media.mjs",
     "clips:check": "node scripts/clip-storyboard.mjs --check && node scripts/check-media-manifest.mjs",
     "clips:outline": "node scripts/clip-storyboard.mjs --outline",
-    "clips:scenes": "node scripts/clip-storyboard.mjs --scenes"
+    "clips:scenes": "node scripts/clip-storyboard.mjs --scenes",
+    "build:vsix": "npm run package"
   },
   "dependencies": {
     "@preact/signals": "^1.3.4",
