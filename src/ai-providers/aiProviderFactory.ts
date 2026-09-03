@@ -12,6 +12,7 @@ import { WibeyCliProvider } from './wibeyCliProvider';
 import { WibeyPanelProvider } from './wibeyPanelProvider';
 import { AntigravityCliProvider } from './antigravityCliProvider';
 import { AIProviders } from '../core/constants';
+import { warnIfSpecKitVersionMismatch } from '../speckit/versionCompatibility';
 
 type ProviderConstructor = (
     context: vscode.ExtensionContext,
@@ -42,6 +43,10 @@ export class AIProviderFactory {
         context: vscode.ExtensionContext,
         outputChannel: vscode.OutputChannel
     ): IAIProvider {
+        // Re-check with a short TTL whenever the extension is about to use an AI
+        // provider. This catches a CLI/project version drift introduced while the
+        // VS Code window stays open without adding a process spawn to every click.
+        void warnIfSpecKitVersionMismatch(false);
         return this.getProviderByType(getConfiguredProviderType(), context, outputChannel);
     }
 
