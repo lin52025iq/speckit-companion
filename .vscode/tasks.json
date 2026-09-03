@@ -7,6 +7,17 @@
             "group": "build",
             "problemMatcher": "$tsc",
             "label": "npm: compile"
+        },
+        {
+            "type": "npm",
+            "script": "build:vsix",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [],
+            "label": "一键构建并打包 VSIX",
+            "detail": "编译扩展代码、打包 Web 资源，并生成可安装的 .vsix 文件"
         }
     ]
 }
