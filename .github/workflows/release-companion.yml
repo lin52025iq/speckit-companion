@@ -1,0 +1,115 @@
+name: Release Companion Spec Kit Extension
+
+on:
+  push:
+    tags:
+      - 'speckit-ext-v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release-companion:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read extension version
+        id: version
+        shell: bash
+        run: |
+          VERSION=$(python3 - <<'PY'
+          import re
+          from pathlib import Path
+
+          text = Path('speckit-extension/extension.yml').read_text(encoding='utf-8')
+          match = re.search(r'^\s*version:\s*["\x27]?([^"\x27\s]+)', text, re.MULTILINE)
+          if not match:
+              raise SystemExit('Could not read extension.version from speckit-extension/extension.yml')
+          print(match.group(1))
+          PY
+          )
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          EXPECTED_TAG="speckit-ext-v$VERSION"
+          if [ "$GITHUB_REF_NAME" != "$EXPECTED_TAG" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match extension version $VERSION (expected $EXPECTED_TAG)" >&2
+            exit 1
+          fi
+
+      - name: Validate runtime package manifest
+        run: |
+          cd speckit-extension
+          python3 scripts/package-manifest.py --check
+
+      - name: Build companion archives
+        shell: bash
+        run: |
+          set -euo pipefail
+          V="${{ steps.version.outputs.version }}"
+          STAGE="$RUNNER_TEMP/companion-build"
+          ROOT="$STAGE/companion-$V"
+          rm -rf "$STAGE"
+          mkdir -p "$ROOT/scripts"
+
+          cp speckit-extension/extension.yml speckit-extension/LICENSE "$ROOT/"
+          cp -R speckit-extension/commands speckit-extension/workflows "$ROOT/"
+          python3 speckit-extension/scripts/package-manifest.py --copy-to "$ROOT/scripts"
+
+          (
+            cd "$STAGE"
+            zip -rq "companion-$V.zip" "companion-$V"
+          )
+          cp "$STAGE/companion-$V.zip" "$STAGE/companion.zip"
+
+          echo "stage=$STAGE" >> "$GITHUB_ENV"
+          echo "versioned_zip=$STAGE/companion-$V.zip" >> "$GITHUB_ENV"
+          echo "rolling_zip=$STAGE/companion.zip" >> "$GITHUB_ENV"
+
+      - name: Verify archive layout
+        shell: bash
+        run: |
+          set -euo pipefail
+          V="${{ steps.version.outputs.version }}"
+          unzip -l "$versioned_zip"
+          unzip -Z1 "$versioned_zip" | grep -qx "companion-$V/extension.yml"
+          unzip -Z1 "$versioned_zip" | grep -qx "companion-$V/LICENSE"
+
+      - name: Create versioned release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          V="${{ steps.version.outputs.version }}"
+          gh release create "$GITHUB_REF_NAME" "$versioned_zip" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "SpecKit Companion Spec Kit Extension v$V" \
+            --generate-notes \
+            --target "$GITHUB_SHA"
+
+      - name: Refresh companion-latest rolling asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view companion-latest --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload companion-latest "$rolling_zip" \
+              --repo "$GITHUB_REPOSITORY" \
+              --clobber
+          else
+            gh release create companion-latest "$rolling_zip" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "SpecKit Companion (latest)" \
+              --prerelease \
+              --target "$GITHUB_SHA"
+          fi
+          gh release edit companion-latest --repo "$GITHUB_REPOSITORY" --prerelease
+
+      - name: Publish install command
+        run: |
+          echo 'Install/update from the stable rolling asset:'
+          echo "specify extension add companion --from https://github.com/$GITHUB_REPOSITORY/releases/download/companion-latest/companion.zip --force"
