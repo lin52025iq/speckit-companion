@@ -1,7 +1,13 @@
 <!-- SPECKIT START -->
 
-For additional context about technologies to be used, project structure,
-shell commands, and other important information, read the current plan:
+## 默认语言与输出规范
+
+- 默认使用简体中文回复用户。
+- 所有由 SpecKit 生成或维护的规格、计划、任务、研究、数据模型、快速开始、契约、检查清单、Constitution、Steering 文档和其他说明性 Markdown 内容默认使用简体中文。
+- 代码、命令、文件路径、API、配置键、标识符和产品/库专有名词保持原文，避免破坏可执行内容或兼容性。
+- 英文模板只作为结构和语义参考，最终写入仓库的自然语言内容应转换为中文，不保留无必要的英文占位说明。
+
+如需了解当前使用的技术、项目结构、Shell 命令和其他重要上下文，请读取当前计划：
 `specs/120-reorder-sidebar-icons/plan.md`
 
 <!-- SPECKIT END -->
