@@ -12,9 +12,9 @@ import { SPEC_KIT_FORCE_INSTALL_COMMAND, SPEC_KIT_TARGET_VERSION } from './versi
  * `specify extension` CLI surface introduced by modern Spec Kit releases.
  */
 
-/** Stable rolling release asset for the Companion spec-kit extension. */
+/** Stable rolling release asset for this fork's Companion spec-kit extension. */
 export const RELEASE_URL =
-    'https://github.com/alfredoperez/speckit-companion/releases/download/companion-latest/companion.zip';
+    'https://github.com/lin52025iq/speckit-companion/releases/download/companion-latest/companion.zip';
 
 /** Catalog by-name form, used once the extension is listed by spec-kit. */
 export const BY_NAME_INSTALL = 'companion';
@@ -22,23 +22,18 @@ export const BY_NAME_INSTALL = 'companion';
 /** Keep false until the official spec-kit catalog lists `companion`. */
 export const USE_BY_NAME_INSTALL = false;
 
-/**
- * Reproducible Spec Kit baseline used by this VS Code extension. Spec Kit 1.0.4
- * supports both source and PyPI distribution; the source-tag form is deliberately
- * pinned here so an in-editor repair cannot silently move to a future incompatible
- * release while this extension still targets 1.0.4.
- */
+/** Reproducible Spec Kit baseline used by this VS Code extension. */
 export const CLI_PREREQ_COMMAND = SPEC_KIT_FORCE_INSTALL_COMMAND;
 
 /** README section a banner's "Learn more" link falls back to. */
 export const README_FALLBACK_URL =
-    'https://github.com/alfredoperez/speckit-companion#install-the-spec-kit-extension';
+    'https://github.com/lin52025iq/speckit-companion#install-the-spec-kit-extension';
 
 export function buildInstallCommand(): string {
     if (USE_BY_NAME_INSTALL) {
         return `specify extension add ${BY_NAME_INSTALL}`;
     }
-    return `specify extension add ${BY_NAME_INSTALL} --from ${RELEASE_URL}`;
+    return `specify extension add ${BY_NAME_INSTALL} --from ${RELEASE_URL} --force`;
 }
 
 export function shouldShowInstallPrompt(
@@ -60,7 +55,7 @@ export function readInstallPromptEnabled(): boolean {
  */
 export function runInstallSpecKitExtension(workspaceRoot?: string): void {
     const terminal = vscode.window.createTerminal({
-        name: '安装 spec-kit 扩展',
+        name: '安装/更新 Companion 的 Spec Kit 扩展',
         ...(workspaceRoot ? { cwd: workspaceRoot } : {}),
     });
     terminal.show();
