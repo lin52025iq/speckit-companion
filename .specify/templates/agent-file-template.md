@@ -1,28 +1,31 @@
-# [PROJECT NAME] Development Guidelines
+# [项目名称] 开发指南
 
-Auto-generated from all feature plans. Last updated: [DATE]
+根据所有功能计划自动生成。最后更新：[DATE]
 
-## Active Technologies
+> 默认使用简体中文维护本文档以及由 Agent 生成的说明性内容。代码、命令、路径、API、配置键、标识符和技术专有名词保持原文。
 
-[EXTRACTED FROM ALL PLAN.MD FILES]
+## 当前技术栈
 
-## Project Structure
+[从所有 PLAN.MD 文件中提取，并用中文说明用途]
+
+## 项目结构
 
 ```text
-[ACTUAL STRUCTURE FROM PLANS]
+[从计划中提取的真实目录结构]
 ```
 
-## Commands
+## 常用命令
 
-[ONLY COMMANDS FOR ACTIVE TECHNOLOGIES]
+[仅列出当前技术栈实际使用的命令；命令本身保持原文，说明使用中文]
 
-## Code Style
+## 代码风格
 
-[LANGUAGE-SPECIFIC, ONLY FOR LANGUAGES IN USE]
+[仅针对实际使用语言给出中文开发规范]
 
-## Recent Changes
+## 最近变更
 
-[LAST 3 FEATURES AND WHAT THEY ADDED]
+[最近 3 个功能以及各自新增内容，使用中文概述]
 
 <!-- MANUAL ADDITIONS START -->
+<!-- 手工补充内容默认使用简体中文 -->
 <!-- MANUAL ADDITIONS END -->
