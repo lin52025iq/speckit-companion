@@ -4,7 +4,6 @@
         {
             "type": "npm",
             "script": "compile",
-            "group": "build",
             "problemMatcher": "$tsc",
             "label": "npm: compile"
         },
