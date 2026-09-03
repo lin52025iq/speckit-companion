@@ -33,30 +33,30 @@ describe('speckit.upgrade QuickPick', () => {
 
         const [items] = mockWindow.showQuickPick.mock.calls[0];
         const labels = (items as Array<{ label: string }>).map(i => i.label);
-        expect(labels[0]).toMatch(/Upgrade All/);
-        expect(labels[1]).toMatch(/Upgrade Project/);
-        expect(labels[2]).toMatch(/Upgrade CLI/);
+        expect(labels[0]).toMatch(/全部升级/);
+        expect(labels[1]).toMatch(/升级项目/);
+        expect(labels[2]).toMatch(/升级 CLI/);
     });
 
-    it('dispatches speckit.upgradeAll when "Upgrade All" is picked', async () => {
+    it('dispatches speckit.upgradeAll when “全部升级” is picked', async () => {
         mockWindow.showQuickPick.mockImplementation(async (items: unknown) => {
-            return (items as Array<{ label: string }>).find(i => i.label.includes('Upgrade All'));
+            return (items as Array<{ label: string }>).find(i => i.label.includes('全部升级'));
         });
         await getRegisteredHandler('speckit.upgrade')();
         expect(mockCommands.executeCommand).toHaveBeenCalledWith('speckit.upgradeAll');
     });
 
-    it('dispatches speckit.upgradeProject when "Upgrade Project" is picked', async () => {
+    it('dispatches speckit.upgradeProject when “升级项目” is picked', async () => {
         mockWindow.showQuickPick.mockImplementation(async (items: unknown) => {
-            return (items as Array<{ label: string }>).find(i => i.label.includes('Upgrade Project'));
+            return (items as Array<{ label: string }>).find(i => i.label.includes('升级项目'));
         });
         await getRegisteredHandler('speckit.upgrade')();
         expect(mockCommands.executeCommand).toHaveBeenCalledWith('speckit.upgradeProject');
     });
 
-    it('dispatches speckit.upgradeCli when "Upgrade CLI" is picked', async () => {
+    it('dispatches speckit.upgradeCli when “升级 CLI” is picked', async () => {
         mockWindow.showQuickPick.mockImplementation(async (items: unknown) => {
-            return (items as Array<{ label: string }>).find(i => i.label.includes('Upgrade CLI'));
+            return (items as Array<{ label: string }>).find(i => i.label.includes('升级 CLI'));
         });
         await getRegisteredHandler('speckit.upgrade')();
         expect(mockCommands.executeCommand).toHaveBeenCalledWith('speckit.upgradeCli');
