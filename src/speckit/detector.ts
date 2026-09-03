@@ -141,12 +141,12 @@ export class SpecKitDetector {
     }
 
     async installCli(): Promise<void> {
-        const terminal = vscode.window.createTerminal('安装 SpecKit CLI 1.0.4');
+        const terminal = vscode.window.createTerminal(`安装 Spec Kit CLI ${SPEC_KIT_TARGET_VERSION}`);
         terminal.show();
         terminal.sendText(SPEC_KIT_FORCE_INSTALL_COMMAND);
 
         const selection = await vscode.window.showInformationMessage(
-            `正在安装 Spec Kit ${SPEC_KIT_TARGET_VERSION}。完成后请重新加载窗口以重新检测版本。`,
+            `正在安装项目要求的 Spec Kit CLI ${SPEC_KIT_TARGET_VERSION}。完成后请重新加载窗口，以便重新检测版本。`,
             '了解更多',
             '重新加载窗口'
         );
@@ -167,12 +167,12 @@ export class SpecKitDetector {
         }
 
         const integration = getConfiguredSpecKitAgent();
-        const terminal = vscode.window.createTerminal('初始化 SpecKit');
+        const terminal = vscode.window.createTerminal('初始化 Spec Kit');
         terminal.show();
         terminal.sendText(`cd "${workspaceFolder.uri.fsPath}" && specify init . --integration ${integration}`);
 
         const selection = await vscode.window.showInformationMessage(
-            `正在使用 Spec Kit ${SPEC_KIT_TARGET_VERSION} 初始化项目（integration: ${integration}）。完成后请重新加载窗口。`,
+            `正在使用 Spec Kit ${SPEC_KIT_TARGET_VERSION} 初始化当前项目，并配置 AI 集成“${integration}”。完成后请重新加载窗口。`,
             '重新加载窗口',
             '了解更多'
         );
@@ -186,7 +186,7 @@ export class SpecKitDetector {
     }
 
     async upgradeCli(): Promise<void> {
-        const terminal = vscode.window.createTerminal(`升级 SpecKit CLI → ${SPEC_KIT_TARGET_VERSION}`);
+        const terminal = vscode.window.createTerminal(`升级 Spec Kit CLI → ${SPEC_KIT_TARGET_VERSION}`);
         terminal.show();
         // Pin the GitHub release tag for reproducibility. This is also the official
         // manual fallback for installs too old to support `specify self upgrade`.
@@ -194,7 +194,7 @@ export class SpecKitDetector {
 
         clearSpecKitVersionCache();
         const selection = await vscode.window.showInformationMessage(
-            `正在将 Spec Kit CLI 对齐到 ${SPEC_KIT_TARGET_VERSION}。升级完成后请重新加载窗口。`,
+            `正在将 Spec Kit CLI 对齐到项目要求的 ${SPEC_KIT_TARGET_VERSION}。完成后请重新加载窗口。`,
             '重新加载窗口'
         );
         if (selection === '重新加载窗口') {
@@ -210,7 +210,7 @@ export class SpecKitDetector {
         }
 
         const integration = getConfiguredSpecKitAgent();
-        const terminal = vscode.window.createTerminal('升级 SpecKit 项目文件');
+        const terminal = vscode.window.createTerminal('升级 Spec Kit 项目文件');
         terminal.show();
         terminal.sendText(
             `cd "${workspaceFolder.uri.fsPath}" && ` +
@@ -219,7 +219,7 @@ export class SpecKitDetector {
 
         clearSpecKitVersionCache();
         const selection = await vscode.window.showInformationMessage(
-            `正在按 Spec Kit ${SPEC_KIT_TARGET_VERSION} 的 manifest-aware 流程升级 integration（${integration}）和已安装扩展。完成后请重新加载窗口。`,
+            `正在更新 AI 集成“${integration}”对应的项目文件，并更新已安装的 Spec Kit 扩展。目标版本为 ${SPEC_KIT_TARGET_VERSION}。完成后请重新加载窗口。`,
             '重新加载窗口'
         );
         if (selection === '重新加载窗口') {
@@ -245,7 +245,7 @@ export class SpecKitDetector {
 
         clearSpecKitVersionCache();
         const selection = await vscode.window.showInformationMessage(
-            `正在将 CLI、项目 integration 和扩展统一对齐到 Spec Kit ${SPEC_KIT_TARGET_VERSION}。完成后请重新加载窗口。`,
+            `正在将 Spec Kit CLI、AI 集成“${integration}”的项目文件和已安装扩展统一对齐到 ${SPEC_KIT_TARGET_VERSION}。完成后请重新加载窗口。`,
             '重新加载窗口'
         );
         if (selection === '重新加载窗口') {
