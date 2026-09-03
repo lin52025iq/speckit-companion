@@ -7,7 +7,7 @@ workflow:
   description: "按 specify → plan → tasks → implement 执行规格驱动开发，并在关键阶段设置审查门禁；所有自然语言产物默认使用简体中文"
 
 requires:
-  speckit_version: ">=0.7.2"
+  speckit_version: ">=1.0.4"
   integrations:
     any: ["copilot", "claude", "gemini"]
 
