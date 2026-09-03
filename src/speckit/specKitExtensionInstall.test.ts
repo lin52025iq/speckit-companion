@@ -12,14 +12,14 @@ import { SPEC_KIT_TARGET_VERSION } from './versionCompatibility';
 
 describe('specKitExtensionInstall', () => {
     describe('buildInstallCommand', () => {
-        it('installs from the release URL while the catalog form is off', () => {
+        it('installs from the fork release URL while the catalog form is off', () => {
             expect(USE_BY_NAME_INSTALL).toBe(false);
             const cmd = buildInstallCommand();
-            expect(cmd).toBe(`specify extension add ${BY_NAME_INSTALL} --from ${RELEASE_URL}`);
+            expect(cmd).toBe(`specify extension add ${BY_NAME_INSTALL} --from ${RELEASE_URL} --force`);
         });
 
-        it('does not pass --force to extension add', () => {
-            expect(buildInstallCommand()).not.toContain('--force');
+        it('uses --force so the same command can install or update the rolling asset', () => {
+            expect(buildInstallCommand()).toContain('--force');
         });
 
         it('pins the required Spec Kit development baseline', () => {
@@ -30,9 +30,9 @@ describe('specKitExtensionInstall', () => {
     });
 
     describe('RELEASE_URL', () => {
-        it('points at the stable rolling Companion asset', () => {
+        it('points at this fork stable rolling Companion asset', () => {
             expect(RELEASE_URL).toBe(
-                'https://github.com/alfredoperez/speckit-companion/releases/download/companion-latest/companion.zip'
+                'https://github.com/lin52025iq/speckit-companion/releases/download/companion-latest/companion.zip'
             );
         });
     });
