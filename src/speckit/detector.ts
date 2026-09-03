@@ -5,12 +5,15 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import { CONTEXT_KEYS, setContextKey } from '../core/utils/contextKeys';
 import { getConfiguredSpecKitAgent } from './specKitAgent';
+import {
+    SPEC_KIT_FORCE_INSTALL_COMMAND,
+    SPEC_KIT_TARGET_VERSION,
+    checkSpecKitVersionConsistency,
+    clearSpecKitVersionCache,
+} from './versionCompatibility';
 
 const execAsync = promisify(exec);
 
-/**
- * Service for detecting SpecKit CLI installation and workspace initialization
- */
 export class SpecKitDetector {
     private static instance: SpecKitDetector;
     private _isInstalled = false;
@@ -27,9 +30,6 @@ export class SpecKitDetector {
         return SpecKitDetector.instance;
     }
 
-    /**
-     * Set the output channel for logging
-     */
     setOutputChannel(channel: vscode.OutputChannel): void {
         this.outputChannel = channel;
     }
@@ -40,25 +40,19 @@ export class SpecKitDetector {
         }
     }
 
-    /**
-     * Check if SpecKit CLI is installed globally
-     * Note: specify CLI doesn't support --version, so we use 'which' or 'specify --help'
-     */
+    /** Check whether the Spec Kit CLI is installed. Modern Spec Kit exposes --version. */
     async checkCliInstalled(): Promise<boolean> {
         try {
-            // Try to find the specify command in PATH
-            const whichCmd = process.platform === 'win32' ? 'where specify' : 'which specify';
-            const { stdout } = await execAsync(whichCmd);
+            const { stdout, stderr } = await execAsync('specify --version');
             this._isInstalled = true;
-            this.log(`SpecKit CLI found at: ${stdout.trim()}`);
+            this.log(`SpecKit CLI detected: ${`${stdout}\n${stderr}`.trim()}`);
             await setContextKey(CONTEXT_KEYS.cliInstalled, true);
             return true;
         } catch {
-            // Fallback: try running specify with --help (exits with 0)
             try {
                 await execAsync('specify --help');
                 this._isInstalled = true;
-                this.log('SpecKit CLI found (via --help)');
+                this.log('SpecKit CLI found via --help (legacy install)');
                 await setContextKey(CONTEXT_KEYS.cliInstalled, true);
                 return true;
             } catch {
@@ -70,10 +64,6 @@ export class SpecKitDetector {
         }
     }
 
-    /**
-     * Check if SpecKit is initialized in the current workspace
-     * (looks for .specify/ folder or .github/agents/speckit.*.md files)
-     */
     async checkWorkspaceInitialized(): Promise<boolean> {
         const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
         if (!workspaceFolder) {
@@ -82,18 +72,15 @@ export class SpecKitDetector {
             return false;
         }
 
-        // Check for .specify folder (primary indicator)
         const specifyFolder = path.join(workspaceFolder.uri.fsPath, '.specify');
         if (fs.existsSync(specifyFolder)) {
             this._isInitialized = true;
             this.log('Found .specify folder');
         } else {
-            // Fallback: Check for SpecKit agent files in .github/agents
             const specKitAgents = [
                 '.github/agents/speckit.specify.agent.md',
                 '.github/agents/speckit.plan.agent.md'
             ];
-
             this._isInitialized = false;
             for (const agent of specKitAgents) {
                 const agentPath = path.join(workspaceFolder.uri.fsPath, agent);
@@ -105,16 +92,11 @@ export class SpecKitDetector {
             }
         }
 
-        // Update context for welcome view
         await setContextKey(CONTEXT_KEYS.detected, this._isInitialized);
         this.log(`Workspace initialized: ${this._isInitialized}`);
-
         return this._isInitialized;
     }
 
-    /**
-     * Check if constitution needs setup (has placeholder tokens)
-     */
     async checkConstitutionSetup(): Promise<boolean> {
         const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
         if (!workspaceFolder) {
@@ -123,7 +105,6 @@ export class SpecKitDetector {
         }
 
         const constitutionPath = path.join(workspaceFolder.uri.fsPath, '.specify/memory/constitution.md');
-
         if (!fs.existsSync(constitutionPath)) {
             this._constitutionNeedsSetup = false;
             this.log('Constitution file not found');
@@ -132,7 +113,6 @@ export class SpecKitDetector {
 
         try {
             const content = fs.readFileSync(constitutionPath, 'utf-8');
-            // Check for common placeholder tokens
             const hasPlaceholders = /\[PROJECT_NAME\]|\[PRINCIPLE_\d+_NAME\]|\[PLACEHOLDER\]/.test(content);
             this._constitutionNeedsSetup = hasPlaceholders;
             this.log(`Constitution needs setup: ${hasPlaceholders}`);
@@ -145,147 +125,142 @@ export class SpecKitDetector {
         }
     }
 
-    /**
-     * Full detection - checks CLI, workspace, and constitution
-     */
     async detect(): Promise<{ cliInstalled: boolean; workspaceInitialized: boolean; constitutionNeedsSetup: boolean }> {
         const cliInstalled = await this.checkCliInstalled();
         const workspaceInitialized = await this.checkWorkspaceInitialized();
         const constitutionNeedsSetup = workspaceInitialized ? await this.checkConstitutionSetup() : false;
+
+        if (cliInstalled) {
+            const versionStatus = await checkSpecKitVersionConsistency(true);
+            this.log(
+                `Version check: expected=${versionStatus.expectedVersion}, cli=${versionStatus.installedVersion ?? 'unknown'}, ` +
+                `project=${versionStatus.projectVersion ?? 'unknown'}, compatible=${versionStatus.compatible}`
+            );
+        }
         return { cliInstalled, workspaceInitialized, constitutionNeedsSetup };
     }
 
-    /**
-     * Install SpecKit CLI using uv
-     */
     async installCli(): Promise<void> {
-        const terminal = vscode.window.createTerminal('Install SpecKit CLI');
+        const terminal = vscode.window.createTerminal(`安装 Spec Kit CLI ${SPEC_KIT_TARGET_VERSION}`);
         terminal.show();
-        terminal.sendText('uv tool install specify-cli --from git+https://github.com/github/spec-kit.git');
+        terminal.sendText(SPEC_KIT_FORCE_INSTALL_COMMAND);
 
         const selection = await vscode.window.showInformationMessage(
-            'Installing SpecKit CLI... Once complete, reload the window to detect it.',
-            'Learn More',
-            'Reload Window'
+            `正在安装项目要求的 Spec Kit CLI ${SPEC_KIT_TARGET_VERSION}。完成后请重新加载窗口，以便重新检测版本。`,
+            '了解更多',
+            '重新加载窗口'
         );
 
-        if (selection === 'Learn More') {
+        clearSpecKitVersionCache();
+        if (selection === '了解更多') {
             vscode.env.openExternal(vscode.Uri.parse('https://github.com/github/spec-kit#-get-started'));
-        } else if (selection === 'Reload Window') {
+        } else if (selection === '重新加载窗口') {
             vscode.commands.executeCommand('workbench.action.reloadWindow');
         }
     }
 
-    /**
-     * Initialize SpecKit in the current workspace
-     */
     async initializeWorkspace(): Promise<void> {
         const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
         if (!workspaceFolder) {
-            vscode.window.showErrorMessage('No workspace folder open');
+            vscode.window.showErrorMessage('当前没有打开工作区文件夹');
             return;
         }
 
-        const terminal = vscode.window.createTerminal('Initialize SpecKit');
+        const integration = getConfiguredSpecKitAgent();
+        const terminal = vscode.window.createTerminal('初始化 Spec Kit');
         terminal.show();
-        terminal.sendText(`cd "${workspaceFolder.uri.fsPath}" && specify init .`);
+        terminal.sendText(`cd "${workspaceFolder.uri.fsPath}" && specify init . --integration ${integration}`);
 
         const selection = await vscode.window.showInformationMessage(
-            'Initializing SpecKit... Reload window once complete.',
-            'Reload Window',
-            'Learn More'
+            `正在使用 Spec Kit ${SPEC_KIT_TARGET_VERSION} 初始化当前项目，并配置 AI 集成“${integration}”。完成后请重新加载窗口。`,
+            '重新加载窗口',
+            '了解更多'
         );
 
-        if (selection === 'Reload Window') {
+        clearSpecKitVersionCache();
+        if (selection === '重新加载窗口') {
             vscode.commands.executeCommand('workbench.action.reloadWindow');
-        } else if (selection === 'Learn More') {
+        } else if (selection === '了解更多') {
             vscode.env.openExternal(vscode.Uri.parse('https://github.com/github/spec-kit#-get-started'));
         }
     }
 
-    /**
-     * Upgrade SpecKit CLI to latest version
-     */
     async upgradeCli(): Promise<void> {
-        const terminal = vscode.window.createTerminal('Upgrade SpecKit CLI');
+        const terminal = vscode.window.createTerminal(`升级 Spec Kit CLI → ${SPEC_KIT_TARGET_VERSION}`);
         terminal.show();
-        terminal.sendText('uv tool install specify-cli --force --from git+https://github.com/github/spec-kit.git');
+        // Pin the GitHub release tag for reproducibility. This is also the official
+        // manual fallback for installs too old to support `specify self upgrade`.
+        terminal.sendText(SPEC_KIT_FORCE_INSTALL_COMMAND);
 
+        clearSpecKitVersionCache();
         const selection = await vscode.window.showInformationMessage(
-            'Upgrading SpecKit CLI... Reload window after upgrade completes.',
-            'Reload Window'
+            `正在将 Spec Kit CLI 对齐到项目要求的 ${SPEC_KIT_TARGET_VERSION}。完成后请重新加载窗口。`,
+            '重新加载窗口'
         );
-
-        if (selection === 'Reload Window') {
+        if (selection === '重新加载窗口') {
             vscode.commands.executeCommand('workbench.action.reloadWindow');
         }
     }
 
-    /**
-     * Upgrade project files to latest SpecKit version
-     */
     async upgradeProject(): Promise<void> {
         const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
         if (!workspaceFolder) {
-            vscode.window.showErrorMessage('No workspace folder open');
+            vscode.window.showErrorMessage('当前没有打开工作区文件夹');
             return;
         }
 
-        const terminal = vscode.window.createTerminal('Upgrade SpecKit Project');
+        const integration = getConfiguredSpecKitAgent();
+        const terminal = vscode.window.createTerminal('升级 Spec Kit 项目文件');
         terminal.show();
-        terminal.sendText(`cd "${workspaceFolder.uri.fsPath}" && specify init --here --force --ai ${getConfiguredSpecKitAgent()}`);
-
-        const selection = await vscode.window.showInformationMessage(
-            'Upgrading project files... Reload window after upgrade completes.',
-            'Reload Window'
+        terminal.sendText(
+            `cd "${workspaceFolder.uri.fsPath}" && ` +
+            `specify integration upgrade ${integration} && specify extension update`
         );
 
-        if (selection === 'Reload Window') {
+        clearSpecKitVersionCache();
+        const selection = await vscode.window.showInformationMessage(
+            `正在更新 AI 集成“${integration}”对应的项目文件，并更新已安装的 Spec Kit 扩展。目标版本为 ${SPEC_KIT_TARGET_VERSION}。完成后请重新加载窗口。`,
+            '重新加载窗口'
+        );
+        if (selection === '重新加载窗口') {
             vscode.commands.executeCommand('workbench.action.reloadWindow');
         }
     }
 
-    /**
-     * Upgrade both CLI and project files
-     */
     async upgradeAll(): Promise<void> {
         const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
         if (!workspaceFolder) {
-            vscode.window.showErrorMessage('No workspace folder open');
+            vscode.window.showErrorMessage('当前没有打开工作区文件夹');
             return;
         }
 
-        const terminal = vscode.window.createTerminal('Upgrade SpecKit (All)');
+        const integration = getConfiguredSpecKitAgent();
+        const terminal = vscode.window.createTerminal(`对齐 Spec Kit ${SPEC_KIT_TARGET_VERSION}`);
         terminal.show();
-        terminal.sendText('uv tool install specify-cli --force --from git+https://github.com/github/spec-kit.git && ' +
-            `cd "${workspaceFolder.uri.fsPath}" && specify init --here --force --ai ${getConfiguredSpecKitAgent()}`);
-
-        const selection = await vscode.window.showInformationMessage(
-            'Upgrading SpecKit CLI and project files... Reload window after upgrade completes.',
-            'Reload Window'
+        terminal.sendText(
+            `${SPEC_KIT_FORCE_INSTALL_COMMAND} && ` +
+            `cd "${workspaceFolder.uri.fsPath}" && ` +
+            `specify integration upgrade ${integration} && specify extension update`
         );
 
-        if (selection === 'Reload Window') {
+        clearSpecKitVersionCache();
+        const selection = await vscode.window.showInformationMessage(
+            `正在将 Spec Kit CLI、AI 集成“${integration}”的项目文件和已安装扩展统一对齐到 ${SPEC_KIT_TARGET_VERSION}。完成后请重新加载窗口。`,
+            '重新加载窗口'
+        );
+        if (selection === '重新加载窗口') {
             vscode.commands.executeCommand('workbench.action.reloadWindow');
         }
     }
 
-    /**
-     * Create a new spec using SpecKit
-     */
     async createSpec(): Promise<void> {
         const description = await vscode.window.showInputBox({
-            title: 'Create New Spec',
-            prompt: 'What feature do you want to build?',
-            placeHolder: 'Add user authentication with OAuth support...',
+            title: '新建规格',
+            prompt: '你希望构建什么功能？',
+            placeHolder: '例如：增加支持 OAuth 的用户认证…',
             ignoreFocusOut: true
         });
-
-        if (!description) {
-            return;
-        }
-
-        // Return the description so the caller can use it with the AI provider
+        if (!description) return;
         return;
     }
 

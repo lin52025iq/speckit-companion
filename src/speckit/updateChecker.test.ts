@@ -60,14 +60,13 @@ describe('UpdateChecker', () => {
 
         expect(showSpy).toHaveBeenCalledWith(
             expect.stringContaining('0.23.0'),
-            'View Changelog',
-            'Skip'
+            '查看新版本',
+            '跳过此版本'
         );
     });
 
     it('ignores speckit-ext-v* releases when picking the latest', async () => {
         const context = buildContext('0.22.0');
-        // A newer-by-date spec-kit release must NOT trigger a GUI update notification.
         mockReleases([{ tag_name: 'speckit-ext-v9.9.9' }, { tag_name: 'v0.22.0' }]);
         const showSpy = jest
             .spyOn(require('vscode').window, 'showInformationMessage')
@@ -80,7 +79,6 @@ describe('UpdateChecker', () => {
 
     it('ignores prerelease and draft v* releases', async () => {
         const context = buildContext('0.22.0');
-        // /releases (unlike /releases/latest) surfaces unpublished builds — they must not nag.
         mockReleases([
             { tag_name: 'v0.24.0', prerelease: true },
             { tag_name: 'v0.25.0', draft: true },
@@ -111,16 +109,16 @@ describe('UpdateChecker', () => {
 
         expect(showSpy).toHaveBeenCalledWith(
             expect.stringContaining('0.23.1'),
-            'View Changelog',
-            'Skip'
+            '查看新版本',
+            '跳过此版本'
         );
     });
-    it('opens the offered version\'s own release, not the shared latest lookup', async () => {
+
+    it('opens the offered version from this repository', async () => {
         const context = buildContext('0.22.0');
-        // A spec-kit release published more recently would win /releases/latest.
         mockReleases([{ tag_name: 'speckit-ext-v1.0.0' }, { tag_name: 'v0.23.1' }]);
         jest.spyOn(require('vscode').window, 'showInformationMessage')
-            .mockResolvedValue('View Changelog' as any);
+            .mockResolvedValue('查看新版本' as any);
         const openSpy = require('vscode').env.openExternal as jest.Mock;
 
         await new UpdateChecker(context, buildOutputChannel()).checkForUpdates(true);
@@ -128,14 +126,15 @@ describe('UpdateChecker', () => {
 
         expect(openSpy).toHaveBeenCalledTimes(1);
         const opened = String(openSpy.mock.calls[0][0]);
-        expect(opened).toContain('/releases/tag/v0.23.1');
-        expect(opened).not.toContain('/releases/latest');
+        expect(opened).toContain('github.com/lin52025iq/speckit-companion/releases/tag/v0.23.1');
+        expect(opened).not.toContain('alfredoperez');
     });
+
     it('opens nothing when the user skips', async () => {
         const context = buildContext('0.22.0');
         mockReleases([{ tag_name: 'v0.23.1' }]);
         jest.spyOn(require('vscode').window, 'showInformationMessage')
-            .mockResolvedValue('Skip' as any);
+            .mockResolvedValue('跳过此版本' as any);
 
         await new UpdateChecker(context, buildOutputChannel()).checkForUpdates(true);
         await new Promise(r => setImmediate(r));

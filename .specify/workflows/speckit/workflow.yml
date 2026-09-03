@@ -1,13 +1,13 @@
 schema_version: "1.0"
 workflow:
   id: "speckit"
-  name: "Full SDD Cycle"
+  name: "完整 SDD 流程"
   version: "1.0.0"
   author: "GitHub"
-  description: "Runs specify → plan → tasks → implement with review gates"
+  description: "按 specify → plan → tasks → implement 执行规格驱动开发，并在关键阶段设置审查门禁；所有自然语言产物默认使用简体中文"
 
 requires:
-  speckit_version: ">=0.7.2"
+  speckit_version: ">=1.0.5.dev0"
   integrations:
     any: ["copilot", "claude", "gemini"]
 
@@ -15,11 +15,11 @@ inputs:
   spec:
     type: string
     required: true
-    prompt: "Describe what you want to build"
+    prompt: "请描述你希望构建的功能"
   integration:
     type: string
     default: "copilot"
-    prompt: "Integration to use (e.g. claude, copilot, gemini)"
+    prompt: "请选择要使用的 AI 集成（例如 claude、copilot、gemini）"
   scope:
     type: string
     default: "full"
@@ -30,11 +30,11 @@ steps:
     command: speckit.specify
     integration: "{{ inputs.integration }}"
     input:
-      args: "{{ inputs.spec }}"
+      args: "{{ inputs.spec }}。请使用简体中文生成规格文档；代码、命令、路径、API、配置键和标识符保持原文。"
 
   - id: review-spec
     type: gate
-    message: "Review the generated spec before planning."
+    message: "请在进入计划阶段前审查生成的规格文档。"
     options: [approve, reject]
     on_reject: abort
 
@@ -42,11 +42,11 @@ steps:
     command: speckit.plan
     integration: "{{ inputs.integration }}"
     input:
-      args: "{{ inputs.spec }}"
+      args: "{{ inputs.spec }}。请使用简体中文生成计划及相关研究、数据模型、快速开始和契约文档。"
 
   - id: review-plan
     type: gate
-    message: "Review the plan before generating tasks."
+    message: "请在生成任务前审查实施计划。"
     options: [approve, reject]
     on_reject: abort
 
@@ -54,10 +54,10 @@ steps:
     command: speckit.tasks
     integration: "{{ inputs.integration }}"
     input:
-      args: "{{ inputs.spec }}"
+      args: "{{ inputs.spec }}。请使用简体中文生成任务标题、阶段说明和任务描述，技术标识保持原文。"
 
   - id: implement
     command: speckit.implement
     integration: "{{ inputs.integration }}"
     input:
-      args: "{{ inputs.spec }}"
+      args: "{{ inputs.spec }}。实现过程中与用户的说明、进度、总结和新增文档默认使用简体中文。"

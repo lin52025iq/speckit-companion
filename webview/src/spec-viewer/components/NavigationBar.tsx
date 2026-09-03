@@ -1,5 +1,6 @@
 import type { VSCodeApi, SpecDocument } from '../types';
 import { navState, overviewAvailable, showingOverview, viewerMode } from '../signals';
+import { t } from '../../shared/i18n';
 import { StepTab } from './StepTab';
 
 declare const vscode: VSCodeApi;
@@ -12,13 +13,11 @@ export function NavigationBar() {
         taskCompletionPercent, isViewingRelatedDoc, activeStep,
         currentStep, stepHistory, stalenessMap } = ns;
 
-    // Living-spec mode: no workflow phases to step through — render only a
-    // flat tier tab strip (Spec / Architecture / Coverage).
     if (ns.livingMode) {
         const tiers = coreDocs.filter(d => d.exists);
         if (tiers.length <= 1) return null;
         return (
-            <div class="step-children" aria-label="Living spec tiers">
+            <div class="step-children" aria-label={t('nav.livingSpecTiers', 'Living spec tiers')}>
                 <div class="step-children-tabs">
                     {tiers.map(doc => (
                         <button
@@ -36,14 +35,8 @@ export function NavigationBar() {
         );
     }
 
-    // The rail lists documents only: action steps (Implement, Mark Complete,
-    // any custom step without a document) never render as entries. Every
-    // index below is computed against this rendered list so hidden steps
-    // can't shift or lock tabs.
     const railDocs = (coreDocs ?? []).filter(d => d.category !== 'action');
     const rootPhase = railDocs[0]?.type || 'spec';
-    // The implement percent renders on the implement entry when a workflow
-    // defines it as a document step, else on the last rendered tab.
     const percentHostType = railDocs.find(d => d.type === 'implement')?.type
         ?? railDocs[railDocs.length - 1]?.type;
     const viewingRelatedDoc = isViewingRelatedDoc
@@ -51,10 +44,6 @@ export function NavigationBar() {
         : undefined;
     const parentPhaseForRelated = viewingRelatedDoc?.parentStep || rootPhase;
 
-    // Index of the step currently running — derive from stepHistory
-    // (entry with startedAt set and no completedAt). Future tabs beyond this
-    // index get locked while the step is in-flight. A running step with no
-    // rail entry (a hidden action step) yields no index, so it locks nothing.
     const runningStepIndex = (() => {
         if (!stepHistory) return null;
         for (const [stepKey, entry] of Object.entries(stepHistory)) {
@@ -66,8 +55,6 @@ export function NavigationBar() {
         return null;
     })();
 
-    // Selecting any document from the rail is a "read documents" action —
-    // the shell leaves the Overview if it was showing.
     const handleClick = (phase: string) => {
         viewerMode.value = 'document';
         vscode.postMessage({ type: 'stepperClick', phase });
@@ -78,16 +65,10 @@ export function NavigationBar() {
         vscode.postMessage({ type: 'switchDocument', documentType: docType });
     };
 
-    // Artifact docs nest under the step that owns them. A step's children are
-    // its existing related docs (parentless ones fall back to the root step),
-    // rendered as an indented sub-list right beneath that step's tab.
     const railTypes = new Set(railDocs.map(d => d.type));
     const childrenFor = (stepType: string): SpecDocument[] =>
         relatedDocs.filter(d => d.exists && (d.parentStep || rootPhase) === stepType);
 
-    // Orphans: artifacts whose owning step has no rail entry (a hidden action
-    // step, or a step absent from the workflow). They keep a labeled fallback
-    // group at the bottom so no artifact is ever dropped.
     const orphanGroups: Array<{ parent: SpecDocument | undefined; key: string; docs: SpecDocument[] }> = [];
     for (const doc of relatedDocs) {
         if (!doc.exists) continue;
@@ -102,14 +83,12 @@ export function NavigationBar() {
     }
 
     const recovery = ns.runRecovery;
-
-    // The Overview is a rail destination, so selecting it deselects every document.
     const hasOverview = overviewAvailable.value;
     const onOverview = showingOverview.value;
     const selectedDoc = onOverview ? '' : currentDoc;
 
     return (
-        <nav class="doc-rail" aria-label="Spec documents">
+        <nav class="doc-rail" aria-label={t('nav.specDocuments', 'Spec documents')}>
             {hasOverview && (
                 <div class="rail-group">
                     <button
@@ -119,7 +98,7 @@ export function NavigationBar() {
                         onClick={() => { viewerMode.value = 'overview'; }}
                     >
                         <span class="codicon codicon-book" aria-hidden="true" />
-                        Overview
+                        {t('nav.overview', 'Overview')}
                     </button>
                 </div>
             )}
@@ -128,39 +107,37 @@ export function NavigationBar() {
                     <span class="run-recovery__msg" title={recovery.message}>{recovery.message}</span>
                     <div class="run-recovery__actions">
                         {recovery.mode === 'stale' ? (
-                            // Nothing has been running for days — resuming is the
-                            // wrong offer, so closing the spec out leads instead.
                             <button
                                 type="button"
                                 class="run-recovery__btn run-recovery__btn--primary"
-                                title="Mark this spec as completed"
+                                title={t('nav.markCompleteTitle', 'Mark this spec as completed')}
                                 onClick={() => vscode.postMessage({ type: 'completeSpec' })}
                             >
-                                Mark complete
+                                {t('nav.markComplete', 'Mark complete')}
                             </button>
                         ) : (
                             <button
                                 type="button"
                                 class="run-recovery__btn run-recovery__btn--primary"
-                                title="Resume the pipeline from where it left off"
+                                title={t('nav.resumeTitle', 'Resume the pipeline from where it left off')}
                                 onClick={() => vscode.postMessage({ type: 'resumeRun' })}
                             >
-                                Resume
+                                {t('nav.resume', 'Resume')}
                             </button>
                         )}
                         <button
                             type="button"
                             class="run-recovery__btn"
-                            title="Force this spec to a lifecycle status"
+                            title={t('nav.setStatusTitle', 'Force this spec to a lifecycle status')}
                             onClick={() => vscode.postMessage({ type: 'setStatus' })}
                         >
-                            Set status…
+                            {t('nav.setStatus', 'Set status…')}
                         </button>
                     </div>
                 </div>
             )}
             <div class="rail-group">
-                <p class="rail-label">Pipeline</p>
+                <p class="rail-label">{t('nav.pipeline', 'Pipeline')}</p>
                 <div class="step-tabs">
                     {railDocs.map((doc, i) => {
                         const children = childrenFor(doc.type);
@@ -183,7 +160,7 @@ export function NavigationBar() {
                                     onClick={handleClick}
                                 />
                                 {children.length > 0 && (
-                                    <ul class="step-substeps" aria-label={`${doc.label} files`}>
+                                    <ul class="step-substeps" aria-label={`${doc.label} ${t('nav.files', 'files')}`}>
                                         {children.map(child => (
                                             <li key={child.type}>
                                                 <button
@@ -203,25 +180,28 @@ export function NavigationBar() {
                     })}
                 </div>
             </div>
-            {orphanGroups.map(group => (
-                <div class="rail-group" key={group.key}>
-                    <p class="rail-label">{group.parent ? `${group.parent.label} files` : 'Artifacts'}</p>
-                    <ul class="step-substeps" aria-label={group.parent ? `${group.parent.label} files` : 'Artifacts'}>
-                        {group.docs.map(doc => (
-                            <li key={doc.type}>
-                                <button
-                                    class={`step-child ${doc.type === selectedDoc ? 'active' : ''}`}
-                                    data-doc={doc.type}
-                                    aria-current={doc.type === selectedDoc ? 'page' : undefined}
-                                    onClick={() => handleRelatedClick(doc.type)}
-                                >
-                                    {doc.label}
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            ))}
+            {orphanGroups.map(group => {
+                const label = group.parent ? `${group.parent.label} ${t('nav.files', 'files')}` : t('nav.artifacts', 'Artifacts');
+                return (
+                    <div class="rail-group" key={group.key}>
+                        <p class="rail-label">{label}</p>
+                        <ul class="step-substeps" aria-label={label}>
+                            {group.docs.map(doc => (
+                                <li key={doc.type}>
+                                    <button
+                                        class={`step-child ${doc.type === selectedDoc ? 'active' : ''}`}
+                                        data-doc={doc.type}
+                                        aria-current={doc.type === selectedDoc ? 'page' : undefined}
+                                        onClick={() => handleRelatedClick(doc.type)}
+                                    >
+                                        {doc.label}
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                );
+            })}
         </nav>
     );
 }

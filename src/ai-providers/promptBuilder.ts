@@ -19,6 +19,21 @@ export interface BuildPromptOptions {
     specDir?: string | null;
 }
 
+const ZH_CN_OUTPUT_INSTRUCTION =
+    '语言要求：除非用户明确要求其他语言，否则面向用户的回复以及 SpecKit 生成或更新的说明性文档默认使用简体中文。代码、命令、路径、API、配置键、标识符、协议字段和专有名词保持原文；英文模板按语义执行，不改动机器可读内容。';
+
+function shouldAddChineseOutputInstruction(command: string): boolean {
+    const verb = command.trim().split(/\s+/, 1)[0] ?? '';
+    // This guidance belongs to SpecKit workflow dispatches. Do not alter generic
+    // strings or debug/raw prompts merely because they pass through this helper.
+    return /^\/(?:speckit(?:[.-]|$)|sdd:)/i.test(verb);
+}
+
+function withChineseOutputInstruction(command: string): string {
+    if (!shouldAddChineseOutputInstruction(command)) return command;
+    return `${ZH_CN_OUTPUT_INSTRUCTION}\n\n${command}`;
+}
+
 function isContextInstructionsEnabled(): boolean {
     try {
         return vscode.workspace
@@ -64,7 +79,7 @@ function companionInstalledHere(): boolean {
  */
 export function bundledWriterPath(): string {
     try {
-        const ext = vscode.extensions.getExtension('alfredoperez.speckit-companion');
+        const ext = vscode.extensions.getExtension('lin52025i.speckit-companion');
         if (ext?.extensionPath) {
             return path.join(ext.extensionPath, 'speckit-extension', 'scripts', 'write-context.py');
         }
@@ -76,10 +91,13 @@ export function bundledWriterPath(): string {
 
 export function buildPrompt(options: BuildPromptOptions): string {
     const { command, step, specDir } = options;
+    // Keep the existing switch semantics intact: disabling context instructions
+    // is explicitly a raw-prompt/debug mode, so localization must not alter it.
     if (!isContextInstructionsEnabled()) return command;
     if (!isKnownStep(step)) return command;
+    const localizedCommand = withChineseOutputInstruction(command);
     const preamble = renderPreamble(step as PromptStep, specDir ?? '', nowUtc(), companionRecordsSteps(command), bundledWriterPath());
-    return `${preamble}\n\n${command}`;
+    return `${preamble}\n\n${localizedCommand}`;
 }
 
 /**
@@ -88,10 +106,11 @@ export function buildPrompt(options: BuildPromptOptions): string {
  */
 export function buildLifecyclePrompt(command: string, specDir?: string | null): string {
     if (!isContextInstructionsEnabled()) return command;
+    const localizedCommand = withChineseOutputInstruction(command);
     // A multi-step command (only `:auto` reaches here) is an unattended run — it
     // finishes the whole lifecycle to `completed` with no user approval gate.
     const preamble = renderLifecyclePreamble(specDir ?? '', nowUtc(), companionRecordsSteps(command), bundledWriterPath(), /* unattended */ true);
-    return `${preamble}\n\n${command}`;
+    return `${preamble}\n\n${localizedCommand}`;
 }
 
 /**
@@ -116,7 +135,8 @@ export function buildSpecifyCreationPreamble(
     // specify is self-recorded only when the companion workflow runs AND its
     // extension is installed; otherwise the AI must close specify itself (#332).
     const companionRecords = workflowName === 'companion' && companionInstalledHere();
-    return renderSpecifyCreationLifecyclePreamble(workflowName, specDir ?? null, nowUtc(), companionRecords, bundledWriterPath(), telemetryInstanceId ?? null);
+    const preamble = renderSpecifyCreationLifecyclePreamble(workflowName, specDir ?? null, nowUtc(), companionRecords, bundledWriterPath(), telemetryInstanceId ?? null);
+    return `${preamble}\n\n${ZH_CN_OUTPUT_INSTRUCTION}`;
 }
 
 /**

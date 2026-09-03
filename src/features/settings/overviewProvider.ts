@@ -25,14 +25,14 @@ export class OverviewProvider extends BaseTreeDataProvider<OverviewItem> {
     async getChildren(element?: OverviewItem): Promise<OverviewItem[]> {
         if (element) { return []; }
         return [
-            new OverviewItem('Open Settings', vscode.TreeItemCollapsibleState.None,
-                'settings-open', 'gear', { command: Commands.settings.open, title: 'Open Settings' }),
-            new OverviewItem('Report a Bug', vscode.TreeItemCollapsibleState.None,
-                'feedback-bug', 'bug', { command: Commands.feedback.bugReport, title: 'Report a Bug' }),
-            new OverviewItem('Request a Feature', vscode.TreeItemCollapsibleState.None,
-                'feedback-feature', 'lightbulb', { command: Commands.feedback.featureRequest, title: 'Request a Feature' }),
-            new OverviewItem('Rate on Marketplace', vscode.TreeItemCollapsibleState.None,
-                'feedback-review', 'star-empty', { command: Commands.feedback.review, title: 'Rate on Marketplace' }),
+            new OverviewItem('打开设置', vscode.TreeItemCollapsibleState.None,
+                'settings-open', 'gear', { command: Commands.settings.open, title: '打开设置' }),
+            new OverviewItem('报告问题', vscode.TreeItemCollapsibleState.None,
+                'feedback-bug', 'bug', { command: Commands.feedback.bugReport, title: '报告问题' }),
+            new OverviewItem('提出功能建议', vscode.TreeItemCollapsibleState.None,
+                'feedback-feature', 'lightbulb', { command: Commands.feedback.featureRequest, title: '提出功能建议' }),
+            new OverviewItem('在 Marketplace 评分', vscode.TreeItemCollapsibleState.None,
+                'feedback-review', 'star-empty', { command: Commands.feedback.review, title: '在 Marketplace 评分' }),
         ];
     }
 }

@@ -1,6 +1,7 @@
 import type { ViewerState } from '../types';
 import { viewerState, navState, historyEntries } from '../signals';
 import { hasAnyData } from '../overviewModel';
+import { t } from '../../shared/i18n';
 import {
     IntentSection,
     ExpectationsSection,
@@ -14,28 +15,19 @@ import { ConcernsCard } from './cards/ConcernsCard';
 import { FilesCard } from './cards/FilesCard';
 import { CommentsCard } from './cards/CommentsCard';
 
-/**
- * The viewer install banner, rendered INSIDE the Activity panel (#255 — it used
- * to be injected full-width above #app-root in `html/generator.ts`). Markup,
- * id, classes and `data-action` buttons mirror the server-rendered
- * `installBanner.ts` so the existing document-delegated click handler still
- * resolves `installSpecKitExtension` / `openReadme`. Shown only when the
- * extension is missing (`navState.showInstallPrompt`).
- */
 function InstallBanner() {
     if (!navState.value?.showInstallPrompt) return null;
     return (
-        <div class="install-banner" id="install-banner" role="region" aria-label="Install spec-kit extension">
+        <div class="install-banner" id="install-banner" role="region" aria-label={t('activity.installRegion', 'Install spec-kit extension')}>
             <span class="install-banner__icon codicon codicon-rocket" aria-hidden="true" />
-            <span class="install-banner__text">Install the spec-kit extension for the leaner <code>/speckit.companion.*</code> pipeline and capture.</span>
-            <button type="button" class="install-banner__btn install-banner__btn--primary" data-action="installSpecKitExtension">Install</button>
-            <button type="button" class="install-banner__btn install-banner__btn--link" data-action="openReadme">Learn more</button>
-            <button type="button" class="install-banner__dismiss codicon codicon-close" data-action="dismissInstallBanner" aria-label="Dismiss install prompt" />
+            <span class="install-banner__text">{t('activity.installMessage', 'Install the spec-kit extension for the leaner /speckit.companion.* pipeline and capture.')}</span>
+            <button type="button" class="install-banner__btn install-banner__btn--primary" data-action="installSpecKitExtension">{t('common.install', 'Install')}</button>
+            <button type="button" class="install-banner__btn install-banner__btn--link" data-action="openReadme">{t('common.learnMore', 'Learn more')}</button>
+            <button type="button" class="install-banner__dismiss codicon codicon-close" data-action="dismissInstallBanner" aria-label={t('common.dismiss', 'Dismiss install prompt')} />
         </div>
     );
 }
 
-/** The last few recorded finishes, newest first — the Overview's pulse line. */
 function LatestFeed() {
     const entries = historyEntries.value
         .filter(entry => entry.kind === 'complete')
@@ -47,16 +39,16 @@ function LatestFeed() {
         return isNaN(d.getTime()) ? '' : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };
     return (
-        <section class="activity-feed" aria-label="Latest activity">
-            <span class="activity-feed__label">Latest activity</span>
+        <section class="activity-feed" aria-label={t('activity.latest', 'Latest activity')}>
+            <span class="activity-feed__label">{t('activity.latest', 'Latest activity')}</span>
             <ul>
                 {entries.map((entry, i) => (
                     <li key={`${entry.step}-${entry.at}-${i}`}>
                         <span class="activity-feed__mark" aria-hidden="true"></span>
                         <span class="activity-feed__text">
                             {entry.task
-                                ? `${entry.task} finished`
-                                : `${entry.step}${entry.substep ? ` · ${entry.substep}` : ''} complete`}
+                                ? t('activity.taskFinished', '{task} finished', { task: entry.task })
+                                : t('activity.stepComplete', '{step} complete', { step: `${entry.step}${entry.substep ? ` · ${entry.substep}` : ''}` })}
                         </span>
                         <time>{fmtTime(entry.at)}</time>
                     </li>
@@ -66,7 +58,6 @@ function LatestFeed() {
     );
 }
 
-/** Whether any of the work-log cards inside the disclosure would render. */
 function hasRunLogData(state: ViewerState): boolean {
     return (
         (state.history?.length ?? 0) > 0 ||
@@ -86,15 +77,16 @@ export function ActivityPanel() {
         return (
             <div class="activity-panel">
                 <InstallBanner />
-                <div class="activity-empty">No activity recorded yet</div>
+                <div class="activity-empty">{t('activity.noActivity', 'No activity recorded yet')}</div>
             </div>
         );
     }
 
     const taskCount = Object.keys(state.taskSummaries ?? {}).length;
+    const runLogLabel = taskCount > 0
+        ? t('activity.runLogTasks', 'Run log and {count} task records', { count: taskCount })
+        : t('activity.runLog', 'Run log');
 
-    // Lifecycle signal first, then durable context (why → fence → proof →
-    // choices → traceability); granular run history stays collapsed below.
     return (
         <div class="activity-panel dossier">
             <InstallBanner />
@@ -105,9 +97,7 @@ export function ActivityPanel() {
             <CoverageSection state={state} />
             {hasRunLogData(state) && (
                 <details class="dossier-log">
-                    <summary>
-                        Run log{taskCount > 0 ? ` and ${taskCount} task record${taskCount === 1 ? '' : 's'}` : ''}
-                    </summary>
+                    <summary>{runLogLabel}</summary>
                     <div class="dossier-log__body">
                         {state.lastAction && <p class="dossier-log__last-action">{state.lastAction}</p>}
                         <LatestFeed />

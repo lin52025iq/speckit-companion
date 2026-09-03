@@ -7,6 +7,7 @@ import { ActivityPanel } from './components/ActivityPanel';
 import { ActivityErrorBoundary } from './components/ActivityErrorBoundary';
 import { markdownHtml, navState, showingOverview, viewerState } from './signals';
 import { restoreComments, clearAllRefinements } from './editor';
+import { installDomLocalization, t } from '../shared/i18n';
 
 export interface AppProps {
     specStatus: string;
@@ -27,18 +28,17 @@ export function App({ specStatus }: AppProps) {
         if (showOverview) setHasMountedActivity(true);
     }, [showOverview]);
 
-    // After Preact sets innerHTML via dangerouslySetInnerHTML,
-    // fire a custom event so highlighting/mermaid can run
+    // Keep canonical Markdown/source strings untouched and localize only the
+    // rendered Webview surface. The observer also covers Preact updates and
+    // dynamically rendered Overview/activity content.
+    useEffect(() => installDomLocalization(document.body), []);
+
     useEffect(() => {
         if (html && contentRef.current) {
             contentRef.current.dispatchEvent(new CustomEvent('content-rendered'));
         }
     }, [html]);
 
-    // Restore persisted review comments inline. A doc switch / reload replaces
-    // innerHTML, so clear stale in-memory mounts first, then re-anchor. The
-    // second effect catches the viewerState that lands after the first paint
-    // and any live add/remove/refine updates (restoreComments is idempotent).
     useEffect(() => {
         if (html && contentRef.current) {
             clearAllRefinements();
@@ -49,8 +49,6 @@ export function App({ specStatus }: AppProps) {
         if (html && contentRef.current) restoreComments();
     }, [reviewComments]);
 
-    // Mirror spec-context presence onto <body> so CSS can hide the first H1
-    // even though .spec-header is no longer a sibling of #markdown-content.
     useEffect(() => {
         const has = !!(ns?.specContextName || ns?.badgeText);
         document.body.dataset.hasSpecContext = has ? 'true' : 'false';
@@ -67,7 +65,6 @@ export function App({ specStatus }: AppProps) {
             <div class={`shell-grid${living ? ' shell-grid--no-rail' : ''}`}>
                 {!living && <NavigationBar />}
                 <div class="main-column">
-                    {/* Document-scoped: it must not span the rail. */}
                     <StaleBanner />
                     <main class="content-area" id="content-area">
                         <div
@@ -83,7 +80,7 @@ export function App({ specStatus }: AppProps) {
                                 </ActivityErrorBoundary>
                             </div>
                         )}
-                        <aside class="spec-toc" id="spec-toc" aria-label="Table of contents" hidden={showOverview}></aside>
+                        <aside class="spec-toc" id="spec-toc" aria-label={t('app.toc', 'Table of contents')} hidden={showOverview}></aside>
                     </main>
                 </div>
             </div>

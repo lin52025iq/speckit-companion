@@ -3,6 +3,10 @@ import { ConfigKeys } from '../core/constants';
 import { NotificationUtils } from '../core/utils/notificationUtils';
 import type { GitHubRelease } from '../core/types/config';
 
+const PROJECT_REPOSITORY = 'lin52025iq/speckit-companion';
+const PROJECT_RELEASES_API = `https://api.github.com/repos/${PROJECT_REPOSITORY}/releases?per_page=100`;
+const PROJECT_RELEASES_URL = `https://github.com/${PROJECT_REPOSITORY}/releases`;
+
 export class UpdateChecker {
     private static readonly SKIP_VERSION_KEY = ConfigKeys.globalState.skipVersion;
     private static readonly LAST_CHECK_KEY = ConfigKeys.globalState.lastUpdateCheck;
@@ -18,7 +22,6 @@ export class UpdateChecker {
      * @param force Force check even if already checked today
      */
     async checkForUpdates(force = false): Promise<void> {
-        // Skip if already checked today (unless forced)
         if (!force && this.hasCheckedRecently()) {
             return;
         }
@@ -30,9 +33,7 @@ export class UpdateChecker {
                 return;
             }
             
-            this.outputChannel.appendLine(`[UpdateChecker] Checking for updates... (current: ${currentVersion})`)
-            
-            // Fetch latest release from GitHub
+            this.outputChannel.appendLine(`[UpdateChecker] Checking for updates... (current: ${currentVersion})`);
             const latestRelease = await this.fetchLatestRelease();
             if (!latestRelease) {
                 return;
@@ -41,37 +42,28 @@ export class UpdateChecker {
             const latestVersion = latestRelease.tag_name.replace(/^v/, '');
             const skipVersion = this.context.globalState.get<string>(UpdateChecker.SKIP_VERSION_KEY);
             
-            // Check if there's a new version that hasn't been skipped
             if (this.isNewerVersion(currentVersion, latestVersion) && latestVersion !== skipVersion) {
                 this.showUpdateNotification(currentVersion, latestVersion);
             }
             
-            // Update last check timestamp
             await this.context.globalState.update(UpdateChecker.LAST_CHECK_KEY, Date.now());
             this.outputChannel.appendLine('[UpdateChecker] Update check completed');
-            
         } catch (error) {
             this.outputChannel.appendLine(`[UpdateChecker] ERROR: Failed to check for updates: ${error}`);
         }
     }
     
-    /**
-     * Get current extension version
-     */
     private getCurrentVersion(): string | undefined {
         return this.context.extension.packageJSON.version;
     }
 
-    /**
-     * Fetch the newest VS Code (`v*`) release from GitHub, ignoring spec-kit (`speckit-ext-v*`) releases
-     */
+    /** Fetch the newest VS Code (`v*`) release from this project's GitHub repository. */
     private async fetchLatestRelease(): Promise<GitHubRelease | null> {
         try {
-            this.outputChannel.appendLine('[UpdateChecker] Fetching releases from GitHub...');
-            const response = await fetch(
-                'https://api.github.com/repos/alfredoperez/speckit-companion/releases?per_page=100',
-                { headers: { 'User-Agent': 'speckit-companion', Accept: 'application/vnd.github+json' } }
-            );
+            this.outputChannel.appendLine(`[UpdateChecker] Fetching releases from ${PROJECT_REPOSITORY}...`);
+            const response = await fetch(PROJECT_RELEASES_API, {
+                headers: { 'User-Agent': 'speckit-companion', Accept: 'application/vnd.github+json' },
+            });
 
             if (!response.ok) {
                 this.outputChannel.appendLine(`[UpdateChecker] GitHub API returned ${response.status}: ${response.statusText}`);
@@ -90,8 +82,7 @@ export class UpdateChecker {
 
     /**
      * Pick the highest-version published release whose tag is a VS Code `v<major>.<minor>.<patch>` tag.
-     * Excludes spec-kit releases tagged `speckit-ext-v*` (which share this list) and any draft/prerelease
-     * — the swap from `/releases/latest` to `/releases` would otherwise surface unpublished builds.
+     * Drafts/prereleases and non-extension tags are ignored.
      */
     private selectLatestVsCodeRelease(releases: GitHubRelease[]): GitHubRelease | null {
         if (!Array.isArray(releases)) {
@@ -112,38 +103,28 @@ export class UpdateChecker {
         return latest;
     }
     
-    /**
-     * Show update notification
-     */
     private showUpdateNotification(currentVersion: string, latestVersion: string): void {
-        const message = `🎉 SpecKit Companion ${latestVersion} is available! (current: ${currentVersion})`;
+        const message = `🎉 SpecKit Companion ${latestVersion} 已发布！（当前版本：${currentVersion}）`;
         this.outputChannel.appendLine(`[UpdateChecker] Showing update notification: ${message}`);
 
         vscode.window.showInformationMessage(
             message,
-            'View Changelog',
-            'Skip'
+            '查看新版本',
+            '跳过此版本'
         ).then(async (selection) => {
-            if (selection === 'View Changelog') {
-                // Resolve by tag: both products publish into one releases list, so
-                // `/releases/latest` can land on the spec-kit extension instead.
-                const releaseUrl = `https://github.com/alfredoperez/speckit-companion/releases/tag/v${latestVersion}`;
+            if (selection === '查看新版本') {
+                const releaseUrl = `${PROJECT_RELEASES_URL}/tag/v${latestVersion}`;
                 await vscode.env.openExternal(vscode.Uri.parse(releaseUrl));
-            } else if (selection === 'Skip') {
-                // Remember skipped version
+            } else if (selection === '跳过此版本') {
                 await this.context.globalState.update(UpdateChecker.SKIP_VERSION_KEY, latestVersion);
-                // Show confirmation that auto-dismisses after 5 seconds
                 await NotificationUtils.showAutoDismissNotification(
-                    `Version ${latestVersion} will be skipped in future checks.`,
+                    `后续检查将跳过版本 ${latestVersion}。`,
                     5000
                 );
             }
         });
     }
     
-    /**
-     * Compare version strings
-     */
     private isNewerVersion(current: string, latest: string): boolean {
         const currentParts = current.split('.').map(Number);
         const latestParts = latest.split('.').map(Number);
@@ -159,22 +140,15 @@ export class UpdateChecker {
                 return false;
             }
         }
-        
         return false;
     }
     
-    /**
-     * Check if we've already checked for updates recently
-     */
     private hasCheckedRecently(): boolean {
         const lastCheck = this.context.globalState.get<number>(UpdateChecker.LAST_CHECK_KEY, 0);
         const now = Date.now();
         return (now - lastCheck) < UpdateChecker.CHECK_INTERVAL;
     }
     
-    /**
-     * Clear skip version (useful for testing or resetting)
-     */
     async clearSkipVersion(): Promise<void> {
         await this.context.globalState.update(UpdateChecker.SKIP_VERSION_KEY, undefined);
     }

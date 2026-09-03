@@ -11,18 +11,10 @@ extension:
   license: MIT
 
 requires:
-  # Floor is the workflow-engine surface the Companion workflow rides:
-  # `specify workflow run`/`resume` plus the `command`/`gate`/`switch` step
-  # registry, all present from the 0.9.5 engine. A bare floor is correct as
-  # long as spec-kit's released line has moved past 0.9.5 — `.dev0` is only
-  # needed when the floor equals the exact line spec-kit's git HEAD is
-  # currently building (see spec-kit's own pyproject.toml version).
-  # That condition has not held since 0.9.5 shipped stable, so the bare floor
-  # blocks nobody. Do not "fix" this back to `>=0.9.5.dev0`: that pin was live
-  # only while spec-kit HEAD built the 0.9.5 line, and was deliberately removed
-  # in 0.20.2. The stale `0.9.5.dev0` strings under `examples/` are frozen
-  # snapshots from that era, not versions anyone runs today.
-  speckit_version: ">=0.9.5"
+  # Companion now targets the Spec Kit 1.0.5.dev0 integration/extension lifecycle.
+  # Keep this floor synchronized with the VS Code extension runtime guard and
+  # the repository's bundled workflow fixtures.
+  speckit_version: ">=1.0.5.dev0"
   tools:
     - name: python3
       required: false
@@ -105,8 +97,6 @@ hooks:
     optional: false
     description: "Per-task journaling on implement (currentStep=implement; status=implemented when all tasks checked)"
 
-# Catalog `category` (process) and `effect` (read-write) live only in the
-# community catalog entry — there is no field for them here.
 tags:
   - "vscode"
   - "progress"

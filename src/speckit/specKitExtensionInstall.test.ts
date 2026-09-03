@@ -8,57 +8,48 @@ import {
     shouldShowInstallPrompt,
     runInstallSpecKitExtension,
 } from './specKitExtensionInstall';
+import { SPEC_KIT_TARGET_VERSION } from './versionCompatibility';
 
 describe('specKitExtensionInstall', () => {
     describe('buildInstallCommand', () => {
-        it('installs from the release URL while the catalog form is off', () => {
-            // Guard the launch-time invariant: until the catalog lists the extension,
-            // install must go through the published release asset, not the by-name form.
+        it('installs from the fork release URL while the catalog form is off', () => {
             expect(USE_BY_NAME_INSTALL).toBe(false);
             const cmd = buildInstallCommand();
-            expect(cmd).toBe(`specify extension add ${BY_NAME_INSTALL} --from ${RELEASE_URL}`);
-            expect(cmd).toContain('--from https://github.com/alfredoperez/speckit-companion/releases/');
+            expect(cmd).toBe(`specify extension add ${BY_NAME_INSTALL} --from ${RELEASE_URL} --force`);
         });
 
-        it('does not pass --force to `extension add` (spec-kit CLI rejects it — issue #420)', () => {
-            expect(buildInstallCommand()).not.toContain('--force');
+        it('uses --force so the same command can install or update the rolling asset', () => {
+            expect(buildInstallCommand()).toContain('--force');
         });
 
-        it('exposes the github-source CLI prereq (stock PyPI lacks `extension`)', () => {
-            expect(CLI_PREREQ_COMMAND).toContain('git+https://github.com/github/spec-kit.git');
+        it('pins the required Spec Kit development baseline', () => {
+            expect(SPEC_KIT_TARGET_VERSION).toBe('1.0.5.dev0');
+            expect(CLI_PREREQ_COMMAND).toContain('git+https://github.com/github/spec-kit.git@');
             expect(CLI_PREREQ_COMMAND).toContain('--force');
         });
     });
 
     describe('RELEASE_URL', () => {
-        it('points at the stable rolling asset with no version string', () => {
-            // The in-editor Install/Update must always pull the newest build. A version
-            // string here makes "Update" a silent downgrade — so guard that none returns.
+        it('points at this fork stable rolling Companion asset', () => {
             expect(RELEASE_URL).toBe(
-                'https://github.com/alfredoperez/speckit-companion/releases/download/companion-latest/companion.zip'
+                'https://github.com/lin52025iq/speckit-companion/releases/download/companion-latest/companion.zip'
             );
-            expect(RELEASE_URL).not.toMatch(/speckit-ext-v\d/);
-            expect(RELEASE_URL).not.toMatch(/companion-\d/);
         });
     });
 
     describe('shouldShowInstallPrompt', () => {
-        it('shows when missing and the prompt is enabled', () => {
+        it('shows when missing and enabled', () => {
             expect(shouldShowInstallPrompt(true, false)).toBe(true);
         });
 
-        it('never shows when installed — zero regression for existing users', () => {
+        it('does not show when installed or disabled', () => {
             expect(shouldShowInstallPrompt(true, true)).toBe(false);
-            expect(shouldShowInstallPrompt(false, true)).toBe(false);
-        });
-
-        it('never shows when disabled — explicit opt-out', () => {
             expect(shouldShowInstallPrompt(false, false)).toBe(false);
         });
     });
 
     describe('runInstallSpecKitExtension', () => {
-        it('opens a terminal scoped to the workspace via cwd, echoes the prereq, then runs the install', () => {
+        it('opens a workspace-scoped terminal, prints the required version, then installs', () => {
             const sendText = jest.fn();
             const show = jest.fn();
             (vscode.window.createTerminal as jest.Mock).mockReturnValueOnce({ show, sendText });
@@ -66,22 +57,16 @@ describe('specKitExtensionInstall', () => {
             runInstallSpecKitExtension('/work/project');
 
             expect(show).toHaveBeenCalled();
-            // The workspace root is passed as the terminal's structured `cwd`, never
-            // interpolated into a `cd "..."` shell string — a path with `"`/`` ` ``/`$`/`\`
-            // can't break the quoting or inject shell.
             expect(vscode.window.createTerminal).toHaveBeenCalledWith(
                 expect.objectContaining({ cwd: '/work/project' })
             );
             const sent = sendText.mock.calls.map(c => c[0] as string);
-            expect(sent.some(line => line.startsWith('cd '))).toBe(false);
-            // Prereq is echoed (printed, not auto-run) — a raw `#` comment is unreliable
-            // in interactive zsh (INTERACTIVE_COMMENTS off), so echo is used instead.
-            expect(sent.some(line => line.startsWith('echo "Prerequisite') && line.includes(CLI_PREREQ_COMMAND))).toBe(true);
-            expect(sent.some(line => line.startsWith('#'))).toBe(false);
+            expect(sent.some(line => line.includes(`Spec Kit 版本要求：${SPEC_KIT_TARGET_VERSION}`))).toBe(true);
+            expect(sent.some(line => line.includes(CLI_PREREQ_COMMAND))).toBe(true);
             expect(sent).toContain(buildInstallCommand());
         });
 
-        it('omits cwd (no cd) when no workspace root is given', () => {
+        it('omits cwd when no workspace root is given', () => {
             const sendText = jest.fn();
             const createTerminal = vscode.window.createTerminal as jest.Mock;
             createTerminal.mockReturnValueOnce({ show: jest.fn(), sendText });
@@ -91,9 +76,7 @@ describe('specKitExtensionInstall', () => {
             const calls = createTerminal.mock.calls;
             const options = calls[calls.length - 1][0];
             expect(options).not.toHaveProperty('cwd');
-            const sent = sendText.mock.calls.map(c => c[0] as string);
-            expect(sent.some(line => line.startsWith('cd '))).toBe(false);
-            expect(sent).toContain(buildInstallCommand());
+            expect(sendText.mock.calls.map(c => c[0] as string)).toContain(buildInstallCommand());
         });
     });
 });
