@@ -6,33 +6,33 @@ const zhCN: Record<string, string> = {
     'common.dismiss': '关闭',
     'nav.overview': '概览',
     'nav.pipeline': '流程',
-    'nav.artifacts': '相关文档',
+    'nav.artifacts': '文档产物',
     'nav.markComplete': '标记完成',
     'nav.resume': '继续执行',
     'nav.setStatus': '设置状态…',
     'nav.markCompleteTitle': '将此规格标记为已完成',
-    'nav.resumeTitle': '从上次停止的位置继续执行流程',
-    'nav.setStatusTitle': '强制设置此规格的生命周期状态',
+    'nav.resumeTitle': '从上次中断的位置继续执行流程',
+    'nav.setStatusTitle': '手动设置此规格的生命周期状态',
     'nav.specDocuments': '规格文档',
-    'nav.livingSpecTiers': 'Living Spec 文档层级',
+    'nav.livingSpecTiers': 'Living Specs 分层',
     'nav.files': '文件',
-    'footer.scopeSpec': '影响整个规格',
-    'footer.scopeStep': '影响当前步骤',
-    'footer.stepRunning': '步骤执行中，完成后将解锁操作',
-    'footer.archived': '已归档，只读',
-    'footer.runComplete': '流程已完成',
+    'footer.scopeSpec': '作用于整个规格',
+    'footer.scopeStep': '作用于当前步骤',
+    'footer.stepRunning': '当前步骤正在执行，完成后即可使用这些操作',
+    'footer.archived': '已归档，仅供查看',
+    'footer.runComplete': '本次流程已完成',
     'footer.next': '下一步：{label}',
     'footer.otherActions': '其他操作',
     'step.spec': '定义规格 — 明确需求与验收场景',
     'step.plan': '制定计划 — 设计实现方案',
-    'step.tasks': '生成任务 — 将方案拆分为工作项',
-    'step.done': '实施 — 执行并交付',
-    'step.disabled': '{label}（{step} 执行期间不可用）',
-    'step.tasksComplete': '任务已完成 {percent}%',
-    'activity.installRegion': '安装 SpecKit Companion CLI 扩展',
-    'activity.installMessage': '安装 spec-kit Companion 扩展，以启用更精简的 /speckit.companion.* 流程和运行记录。',
+    'step.tasks': '拆分任务 — 将方案转化为可执行工作项',
+    'step.done': '实施 — 完成开发与交付',
+    'step.disabled': '{step} 执行期间暂不可使用“{label}”',
+    'step.tasksComplete': '任务完成度 {percent}%',
+    'activity.installRegion': '安装 SpecKit Companion 扩展',
+    'activity.installMessage': '安装 SpecKit Companion 扩展后，可使用更精简的 Companion 工作流并记录完整运行过程。',
     'activity.latest': '最新活动',
-    'activity.noActivity': '暂无执行记录',
+    'activity.noActivity': '暂无运行记录',
     'activity.taskFinished': '{task} 已完成',
     'activity.stepComplete': '{step} 已完成',
     'activity.runLog': '运行记录',
@@ -43,40 +43,40 @@ const zhCN: Record<string, string> = {
 const literalZhCN: Record<string, string> = {
     'Overview': '概览',
     'Pipeline': '流程',
-    'Artifacts': '相关文档',
+    'Artifacts': '文档产物',
     'Intent': '目标',
-    'Approach': '方案',
+    'Approach': '实现思路',
     'Living specs': 'Living Specs',
     'Working area': '工作范围',
     'Size': '规模',
     'Expectations': '约束与预期',
     'The fence around the work': '本次工作的边界',
-    'Must stay true': '必须保持成立',
-    'Deliberately out of scope': '明确不在范围内',
+    'Must stay true': '必须始终满足',
+    'Deliberately out of scope': '明确不在本次范围内',
     'Verified': '验证结果',
-    'What was checked, and what happened': '检查了什么，以及结果如何',
+    'What was checked, and what happened': '检查内容与结果',
     'Decisions': '关键决策',
-    'Choices future work should not have to rediscover': '后续工作无需再次推导的选择',
+    'Choices future work should not have to rediscover': '后续工作可直接沿用的决策',
     'Why': '原因',
-    'Rejected': '未采用',
-    'Coverage': '覆盖关系',
+    'Rejected': '未采用方案',
+    'Coverage': '覆盖情况',
     'Requirement': '需求',
-    'Delivery': '实现',
-    'Evidence': '证据',
+    'Delivery': '实现情况',
+    'Evidence': '验证依据',
     'No test linked': '未关联测试',
     'Run overview': '运行概览',
     'Timing not recorded': '未记录耗时',
     'Phases': '阶段',
-    'Started': '开始',
+    'Started': '开始时间',
     'Elapsed': '耗时',
-    'Ended': '结束',
+    'Ended': '结束时间',
     'Tasks': '任务',
-    'Concerns': '注意事项',
+    'Concerns': '关注事项',
     'Files touched': '涉及文件',
     'Review comments': '审阅意见',
-    'Applied': '已应用',
+    'Applied': '已处理',
     'Pending': '待处理',
-    'Run refinement': '执行优化',
+    'Run refinement': '处理审阅意见',
     'Latest activity': '最新活动',
     'Run log': '运行记录',
     'Other actions': '其他操作',
@@ -94,13 +94,13 @@ const literalZhCN: Record<string, string> = {
     'Success Criteria': '成功标准',
     'Measurable Outcomes': '可衡量结果',
     'Assumptions': '假设',
-    'Why this priority': '优先级原因',
-    'Independent Test': '独立测试',
+    'Why this priority': '优先级说明',
+    'Independent Test': '独立验证',
     'Given': '前提',
     'When': '当',
     'Then': '则',
     'Summary': '摘要',
-    'Technical Context': '技术上下文',
+    'Technical Context': '技术背景',
     'Constitution Check': 'Constitution 检查',
     'Project Structure': '项目结构',
     'Complexity Tracking': '复杂度记录',
@@ -120,7 +120,7 @@ export function t(key: string, fallback: string, vars?: Record<string, string | 
     let text = uiLocale === 'zh-CN' ? (zhCN[key] ?? fallback) : fallback;
     if (vars) {
         for (const [name, value] of Object.entries(vars)) {
-            text = text.replaceAll(`{${name}}`, String(value));
+            text = text.split(`{${name}}`).join(String(value));
         }
     }
     return text;
@@ -139,20 +139,20 @@ function translateDynamic(text: string): string {
     match = text.match(/^(\d+) tests? not found$/);
     if (match) return `${match[1]} 个测试未找到`;
     match = text.match(/^(\d+) of (\d+) found$/);
-    if (match) return `找到 ${match[1]}/${match[2]}`;
+    if (match) return `已找到 ${match[1]}/${match[2]}`;
     match = text.match(/^(\d+) tests?$/);
     if (match) return `${match[1]} 个测试`;
     match = text.match(/^(\d+)\/(\d+) traced$/);
-    if (match) return `已追踪 ${match[1]}/${match[2]}`;
+    if (match) return `已建立追踪 ${match[1]}/${match[2]}`;
     match = text.match(/^Show all (\d+) requirements$/);
     if (match) return `显示全部 ${match[1]} 条需求`;
     match = text.match(/^Timing coverage: (\d+) of (\d+) phases$/);
-    if (match) return `耗时记录覆盖 ${match[1]}/${match[2]} 个阶段`;
+    if (match) return `${match[2]} 个阶段中有 ${match[1]} 个记录了耗时`;
     match = text.match(/^(.+) elapsed$/);
-    if (match) return `用时 ${match[1]}`;
+    if (match) return `耗时 ${match[1]}`;
     match = text.match(/^folded into (.+)$/);
-    if (match) return `折叠到 ${match[1]}`;
-    if (text === 'folded') return '已折叠';
+    if (match) return `已合并到 ${match[1]}`;
+    if (text === 'folded') return '已合并';
     match = text.match(/^(\d+) files$/);
     if (match) return `${match[1]} 个文件`;
     match = text.match(/^(\d+) tasks$/);
@@ -162,7 +162,7 @@ function translateDynamic(text: string): string {
     match = text.match(/^Run refinement on (\d+) pending comments?$/);
     if (match) return `处理 ${match[1]} 条待处理审阅意见`;
     match = text.match(/^Run refinement \((\d+)\)$/);
-    if (match) return `执行优化（${match[1]}）`;
+    if (match) return `处理审阅意见（${match[1]}）`;
     match = text.match(/^Run log and (\d+) task records?$/);
     if (match) return `运行记录及 ${match[1]} 条任务记录`;
     match = text.match(/^Next: (.+)$/);
