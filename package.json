@@ -1,7 +1,7 @@
 {
   "name": "speckit-companion",
   "displayName": "SpecKit Companion",
-  "description": "See and steer everything your AI builds. Specs 60-68% leaner, same correctness. Live pipeline, per-phase timing, and living specs for GitHub SpecKit with Copilot, Claude, Gemini, and more.",
+  "description": "查看并掌控 AI 构建的一切。规格文档精简 60–68%，正确性不变。为 GitHub SpecKit 提供实时流水线、阶段耗时和 Living Specs，支持 Copilot、Claude、Gemini 等。",
   "version": "0.32.0",
   "license": "MIT",
   "publisher": "alfredoperez",
@@ -62,22 +62,22 @@
       "speckit": [
         {
           "id": "speckit.views.explorer",
-          "name": "Specs"
+          "name": "规格"
         },
         {
           "id": "speckit.views.livingSpecs",
-          "name": "Living Specs",
+          "name": "Living Specs（活文档）",
           "visibility": "collapsed",
           "when": "!(workbenchState == empty || workspaceFolderCount == 0) && speckit.companion.installed"
         },
         {
           "id": "speckit.views.steering",
-          "name": "Steering",
+          "name": "规则与引导",
           "when": "!(workbenchState == empty || workspaceFolderCount == 0) && config.speckit.views.steering.visible"
         },
         {
           "id": "speckit.views.settings",
-          "name": "Settings & Feedback",
+          "name": "设置与反馈",
           "visibility": "collapsed",
           "when": "!(workbenchState == empty || workspaceFolderCount == 0) && config.speckit.views.settings.visible"
         }
@@ -86,22 +86,22 @@
     "viewsWelcome": [
       {
         "view": "speckit.views.explorer",
-        "contents": "Open a folder to start using SpecKit.\n\n[$(folder-opened) Open Folder](command:vscode.openFolder)",
+        "contents": "打开一个文件夹即可开始使用 SpecKit。\n\n[$(folder-opened) 打开文件夹](command:vscode.openFolder)",
         "when": "workbenchState == empty || workspaceFolderCount == 0"
       },
       {
         "view": "speckit.views.explorer",
-        "contents": "SpecKit CLI detected. Initialize this workspace to start building with specs.\n\n[$(gear) Initialize Workspace](command:speckit.initWorkspace)",
+        "contents": "已检测到 SpecKit CLI。初始化当前工作区后即可开始使用规格驱动开发。\n\n[$(gear) 初始化工作区](command:speckit.initWorkspace)",
         "when": "speckit.cliInstalled && !speckit.detected"
       },
       {
         "view": "speckit.views.explorer",
-        "contents": "Configure your project principles to guide AI-assisted development.\n\n[$(book) Configure Constitution](command:speckit.constitution)\n\n[$(plus) Create New Spec](command:speckit.create)",
+        "contents": "配置项目原则，用于指导 AI 辅助开发。\n\n[$(book) 配置 Constitution](command:speckit.constitution)\n\n[$(plus) 新建规格](command:speckit.create)",
         "when": "speckit.detected && speckit.constitutionNeedsSetup"
       },
       {
         "view": "speckit.views.explorer",
-        "contents": "Welcome to SpecKit\n\nA spec turns an idea into a plan and tasks your AI assistant can implement — and this panel shows every step as it runs.\n\n[$(plus) Create your first spec](command:speckit.create)\n\n[$(play) Open a live sample](command:speckit.openSampleSpec)",
+        "contents": "欢迎使用 SpecKit\n\n规格会把一个想法转化为计划和可由 AI 助手执行的任务；此面板会实时展示执行过程中的每一步。\n\n[$(plus) 创建第一个规格](command:speckit.create)\n\n[$(play) 打开实时示例](command:speckit.openSampleSpec)",
         "when": "speckit.detected && !speckit.constitutionNeedsSetup && (speckit.companion.installed || speckit.companion.installNudgeDismissed)"
       },
       {
@@ -111,492 +111,492 @@
       },
       {
         "view": "speckit.views.explorer",
-        "contents": "No specs match the current filter.\n\n[$(clear-all) Clear filter](command:speckit.specs.filter.clear)",
+        "contents": "没有规格符合当前筛选条件。\n\n[$(clear-all) 清除筛选](command:speckit.specs.filter.clear)",
         "when": "speckit.specs.filterActive && speckit.specs.noFilterMatch"
       },
       {
         "view": "speckit.views.steering",
-        "contents": "[$(globe) Create User Rule](command:speckit.steering.createUserRule)\n\n[$(root-folder) Create Project Rule](command:speckit.steering.createProjectRule)"
+        "contents": "[$(globe) 创建用户规则](command:speckit.steering.createUserRule)\n\n[$(root-folder) 创建项目规则](command:speckit.steering.createProjectRule)"
       }
     ],
     "commands": [
       {
         "command": "speckit.installCli",
-        "title": "Install SpecKit CLI",
+        "title": "安装 SpecKit CLI",
         "category": "SpecKit",
         "icon": "$(cloud-download)"
       },
       {
         "command": "speckit.initWorkspace",
-        "title": "Initialize SpecKit",
+        "title": "初始化 SpecKit",
         "category": "SpecKit",
         "icon": "$(rocket)"
       },
       {
         "command": "speckit.create",
-        "title": "New Spec",
+        "title": "新建规格",
         "category": "SpecKit",
         "icon": "$(plus)"
       },
       {
         "command": "speckit.openSampleSpec",
-        "title": "Open a Live Sample",
+        "title": "打开实时示例",
         "category": "SpecKit",
         "icon": "$(play)"
       },
       {
         "command": "speckit.companion.auto.run",
-        "title": "Run Spec Hands-Off (Auto)",
+        "title": "自动运行规格流程",
         "category": "SpecKit",
         "icon": "$(run-all)"
       },
       {
         "command": "speckit.specify",
-        "title": "Specify",
+        "title": "定义规格",
         "category": "SpecKit",
         "icon": "$(note)"
       },
       {
         "command": "speckit.plan",
-        "title": "Plan",
+        "title": "制定计划",
         "category": "SpecKit",
         "icon": "$(list-tree)"
       },
       {
         "command": "speckit.tasks",
-        "title": "Tasks",
+        "title": "生成任务",
         "category": "SpecKit",
         "icon": "$(checklist)"
       },
       {
         "command": "speckit.implement",
-        "title": "Implement",
+        "title": "实施",
         "category": "SpecKit",
         "icon": "$(code)"
       },
       {
         "command": "speckit.clarify",
-        "title": "Clarify",
+        "title": "澄清",
         "category": "SpecKit",
         "icon": "$(question)"
       },
       {
         "command": "speckit.analyze",
-        "title": "Analyze",
+        "title": "分析",
         "category": "SpecKit",
         "icon": "$(search)"
       },
       {
         "command": "speckit.checklist",
-        "title": "Checklist",
+        "title": "检查清单",
         "category": "SpecKit",
         "icon": "$(tasklist)"
       },
       {
         "command": "speckit.customCommand",
-        "title": "Run Custom Command",
+        "title": "运行自定义命令",
         "category": "SpecKit",
         "icon": "$(terminal)"
       },
       {
         "command": "speckit.constitution",
-        "title": "Constitution",
+        "title": "项目原则（Constitution）",
         "category": "SpecKit",
         "icon": "$(law)"
       },
       {
         "command": "speckit.refresh",
-        "title": "Refresh Specs",
+        "title": "刷新规格",
         "category": "SpecKit",
         "icon": "$(refresh)"
       },
       {
         "command": "speckit.specs.toggleCollapseAll",
-        "title": "Toggle Collapse/Expand All",
+        "title": "切换全部折叠/展开",
         "category": "SpecKit"
       },
       {
         "command": "speckit.specs.collapseAll",
-        "title": "Collapse All",
+        "title": "全部折叠",
         "category": "SpecKit",
         "icon": "$(collapse-all)"
       },
       {
         "command": "speckit.specs.expandAll",
-        "title": "Expand All",
+        "title": "全部展开",
         "category": "SpecKit",
         "icon": "$(expand-all)"
       },
       {
         "command": "speckit.specs.filter",
-        "title": "Filter…",
+        "title": "筛选…",
         "category": "SpecKit",
         "icon": "$(filter)"
       },
       {
         "command": "speckit.specs.filter.clear",
-        "title": "Clear Filter",
+        "title": "清除筛选",
         "category": "SpecKit",
         "icon": "$(clear-all)"
       },
       {
         "command": "speckit.specs.sort",
-        "title": "Sort…",
+        "title": "排序…",
         "category": "SpecKit",
         "icon": "$(sort-precedence)"
       },
       {
         "command": "speckit.delete",
-        "title": "Delete",
+        "title": "删除",
         "category": "SpecKit",
         "icon": "$(trash)"
       },
       {
         "command": "speckit.markCompleted",
-        "title": "Mark Complete",
+        "title": "标记为已完成",
         "category": "SpecKit",
         "icon": "$(check)"
       },
       {
         "command": "speckit.archive",
-        "title": "Archive",
+        "title": "归档",
         "category": "SpecKit",
         "icon": "$(archive)"
       },
       {
         "command": "speckit.reactivate",
-        "title": "Reactivate",
+        "title": "重新激活",
         "category": "SpecKit",
         "icon": "$(debug-restart)"
       },
       {
         "command": "speckit.specs.resume",
-        "title": "Resume",
+        "title": "继续",
         "category": "SpecKit",
         "icon": "$(play)"
       },
       {
         "command": "speckit.specs.setStatus",
-        "title": "Set Status…",
+        "title": "设置状态…",
         "category": "SpecKit",
         "icon": "$(settings-gear)"
       },
       {
         "command": "speckit.group.markAllCompleted",
-        "title": "Mark All Complete",
+        "title": "全部标记为已完成",
         "category": "SpecKit",
         "icon": "$(check-all)"
       },
       {
         "command": "speckit.group.archiveAll",
-        "title": "Archive All",
+        "title": "全部归档",
         "category": "SpecKit",
         "icon": "$(archive)"
       },
       {
         "command": "speckit.group.reactivateAll",
-        "title": "Reactivate All",
+        "title": "全部重新激活",
         "category": "SpecKit",
         "icon": "$(debug-restart)"
       },
       {
         "command": "speckit.steering.create",
-        "title": "New Steering Document…",
+        "title": "新建引导文档…",
         "category": "SpecKit",
         "icon": "$(plus)"
       },
       {
         "command": "speckit.steering.createUserRule",
-        "title": "Create User Rule",
+        "title": "创建用户规则",
         "category": "SpecKit",
         "icon": "$(globe)"
       },
       {
         "command": "speckit.steering.createProjectRule",
-        "title": "Create Project Rule",
+        "title": "创建项目规则",
         "category": "SpecKit",
         "icon": "$(root-folder)"
       },
       {
         "command": "speckit.steering.refine",
-        "title": "Refine Steering",
+        "title": "优化引导内容",
         "category": "SpecKit",
         "icon": "$(sparkle)"
       },
       {
         "command": "speckit.steering.delete",
-        "title": "Delete Steering",
+        "title": "删除引导内容",
         "category": "SpecKit",
         "icon": "$(trash)"
       },
       {
         "command": "speckit.steering.refresh",
-        "title": "Refresh Steering",
+        "title": "刷新引导内容",
         "category": "SpecKit",
         "icon": "$(refresh)"
       },
       {
         "command": "speckit.agents.refresh",
-        "title": "Refresh Agents",
+        "title": "刷新 Agents",
         "category": "SpecKit",
         "icon": "$(refresh)"
       },
       {
         "command": "speckit.skills.refresh",
-        "title": "Refresh Skills",
+        "title": "刷新 Skills",
         "category": "SpecKit",
         "icon": "$(refresh)"
       },
       {
         "command": "speckit.hooks.refresh",
-        "title": "Refresh Hooks",
+        "title": "刷新 Hooks",
         "category": "SpecKit",
         "icon": "$(refresh)"
       },
       {
         "command": "speckit.settings.open",
-        "title": "SpecKit Settings",
+        "title": "SpecKit 设置",
         "category": "SpecKit",
         "icon": "$(gear)"
       },
       {
         "command": "speckit.checkForUpdates",
-        "title": "Check for Updates",
+        "title": "检查更新",
         "category": "SpecKit",
         "icon": "$(sync)"
       },
       {
         "command": "speckit.feedback.bugReport",
-        "title": "Report a Bug",
+        "title": "报告问题",
         "category": "SpecKit",
         "icon": "$(bug)"
       },
       {
         "command": "speckit.feedback.featureRequest",
-        "title": "Request a Feature",
+        "title": "提出功能建议",
         "category": "SpecKit",
         "icon": "$(lightbulb)"
       },
       {
         "command": "speckit.feedback.review",
-        "title": "Rate on Marketplace",
+        "title": "在 Marketplace 评分",
         "category": "SpecKit",
         "icon": "$(star-empty)"
       },
       {
         "command": "speckit.sponsor",
-        "title": "Sponsor SpecKit Companion",
+        "title": "赞助 SpecKit Companion",
         "category": "SpecKit",
         "icon": "$(heart)"
       },
       {
         "command": "speckit.upgradeCli",
-        "title": "Upgrade CLI",
+        "title": "升级 CLI",
         "category": "SpecKit",
         "icon": "$(cloud-download)"
       },
       {
         "command": "speckit.upgradeProject",
-        "title": "Upgrade Project Files",
+        "title": "升级项目文件",
         "category": "SpecKit",
         "icon": "$(refresh)"
       },
       {
         "command": "speckit.upgradeAll",
-        "title": "Upgrade All (CLI + Project)",
+        "title": "全部升级（CLI + 项目）",
         "category": "SpecKit",
         "icon": "$(sync)"
       },
       {
         "command": "speckit.upgrade",
-        "title": "Upgrade…",
+        "title": "升级…",
         "category": "SpecKit",
         "icon": "$(cloud-download)"
       },
       {
         "command": "speckit.companion.installSpecKitExtension",
-        "title": "Install Companion Extension",
+        "title": "安装 Companion 扩展",
         "category": "SpecKit",
         "icon": "$(desktop-download)"
       },
       {
         "command": "speckit.companion.openReadme",
-        "title": "About the Companion Extension",
+        "title": "关于 Companion 扩展",
         "category": "SpecKit",
         "icon": "$(book)"
       },
       {
         "command": "speckit.workflowEditor.editSource",
-        "title": "Edit Source",
+        "title": "编辑源文件",
         "category": "SpecKit",
         "icon": "$(edit)"
       },
       {
         "command": "speckit.workflowEditor.refineSection",
-        "title": "Refine Section",
+        "title": "优化此章节",
         "category": "SpecKit",
         "icon": "$(sparkle)"
       },
       {
         "command": "speckit.workflowEditor.removeSection",
-        "title": "Remove Section",
+        "title": "移除此章节",
         "category": "SpecKit",
         "icon": "$(trash)"
       },
       {
         "command": "speckit.workflowEditor.addUserStory",
-        "title": "Add User Story",
+        "title": "添加用户故事",
         "category": "SpecKit",
         "icon": "$(add)"
       },
       {
         "command": "speckit.workflowEditor.approveAndContinue",
-        "title": "Approve & Continue",
+        "title": "批准并继续",
         "category": "SpecKit",
         "icon": "$(check)"
       },
       {
         "command": "speckit.workflowEditor.regenerate",
-        "title": "Regenerate",
+        "title": "重新生成",
         "category": "SpecKit",
         "icon": "$(refresh)"
       },
       {
         "command": "speckit.workflowEditor.navigateToPhase",
-        "title": "Navigate to Phase",
+        "title": "跳转到阶段",
         "category": "SpecKit",
         "icon": "$(arrow-right)"
       },
       {
         "command": "speckit.openSpecEditor",
-        "title": "Open Spec Editor",
+        "title": "打开规格编辑器",
         "category": "SpecKit",
         "icon": "$(edit)"
       },
       {
         "command": "speckit.viewSpecDocument",
-        "title": "View Spec Document",
+        "title": "查看规格文档",
         "category": "SpecKit",
         "icon": "$(preview)"
       },
       {
         "command": "speckit.openSpec",
-        "title": "Open Spec",
+        "title": "打开规格",
         "category": "SpecKit",
         "icon": "$(preview)"
       },
       {
         "command": "speckit.openSpecSource",
-        "title": "Open Source File",
+        "title": "打开源文件",
         "category": "SpecKit",
         "icon": "$(go-to-file)"
       },
       {
         "command": "speckit.specs.reveal",
-        "title": "Reveal in File Manager",
+        "title": "在文件管理器中显示",
         "category": "SpecKit"
       },
       {
         "command": "speckit.specs.revealInExplorer",
-        "title": "Reveal in VS Code Explorer",
+        "title": "在 VS Code 资源管理器中显示",
         "category": "SpecKit"
       },
       {
         "command": "speckit.revealItemInOS",
-        "title": "Reveal in File Manager",
+        "title": "在文件管理器中显示",
         "category": "SpecKit"
       },
       {
         "command": "speckit.revealItemInExplorer",
-        "title": "Reveal in VS Code Explorer",
+        "title": "在 VS Code 资源管理器中显示",
         "category": "SpecKit"
       },
       {
         "command": "speckit.specs.copyPath",
-        "title": "Copy Spec Path",
+        "title": "复制规格路径",
         "category": "SpecKit"
       },
       {
         "command": "speckit.specs.copyName",
-        "title": "Copy Spec Name",
+        "title": "复制规格名称",
         "category": "SpecKit"
       },
       {
         "command": "speckit.livingSpecs.drift",
-        "title": "Check for Drift",
+        "title": "检查漂移",
         "category": "SpecKit",
         "icon": "$(git-compare)"
       },
       {
         "command": "speckit.livingSpecs.coverage",
-        "title": "Check Requirement Coverage",
+        "title": "检查需求覆盖率",
         "category": "SpecKit",
         "icon": "$(checklist)"
       },
       {
         "command": "speckit.livingSpecs.adopt",
-        "title": "Adopt Code Area…",
+        "title": "纳入代码区域…",
         "category": "SpecKit",
         "icon": "$(wand)"
       },
       {
         "command": "speckit.livingSpecs.sync",
-        "title": "Sync living specs from my changes",
+        "title": "根据我的更改同步 Living Specs",
         "category": "SpecKit",
         "icon": "$(sync)"
       },
       {
         "command": "speckit.livingSpecs.refresh",
-        "title": "Refresh Living Specs",
+        "title": "刷新 Living Specs",
         "category": "SpecKit",
         "icon": "$(refresh)"
       },
       {
         "command": "speckit.livingSpecs.update",
-        "title": "Update to Match Code",
+        "title": "更新以匹配代码",
         "category": "SpecKit",
         "icon": "$(sync)"
       },
       {
         "command": "speckit.livingSpecs.copyName",
-        "title": "Copy Name",
+        "title": "复制名称",
         "category": "SpecKit"
       },
       {
         "command": "speckit.livingSpecs.copyPath",
-        "title": "Copy Path",
+        "title": "复制路径",
         "category": "SpecKit"
       },
       {
         "command": "speckit.livingSpecs.copyRelativePath",
-        "title": "Copy Relative Path",
+        "title": "复制相对路径",
         "category": "SpecKit"
       },
       {
         "command": "speckit.livingSpecs.delete",
-        "title": "Delete",
+        "title": "删除",
         "category": "SpecKit"
       },
       {
         "command": "speckit.companion.installNudge",
-        "title": "Install SpecKit Companion",
+        "title": "安装 SpecKit Companion",
         "category": "SpecKit Companion"
       },
       {
         "command": "speckit.companion.dismissInstallNudge",
-        "title": "Dismiss Companion Install Prompt",
+        "title": "关闭 Companion 安装提示",
         "category": "SpecKit Companion"
       }
     ],
     "submenus": [
       {
         "id": "speckit.specs.rowMenu",
-        "label": "More Actions…",
+        "label": "更多操作…",
         "icon": "$(ellipsis)"
       },
       {
         "id": "speckit.specs.titleMenu",
-        "label": "More Actions…",
+        "label": "更多操作…",
         "icon": "$(ellipsis)"
       }
     ],
@@ -869,34 +869,34 @@
         }
       ],
       "commandPalette": [
-                {
-                    "command": "speckit.workflowEditor.refineSection",
-                    "when": "false"
-                },
-                {
-                    "command": "speckit.workflowEditor.removeSection",
-                    "when": "false"
-                },
-                {
-                    "command": "speckit.workflowEditor.addUserStory",
-                    "when": "false"
-                },
-                {
-                    "command": "speckit.workflowEditor.approveAndContinue",
-                    "when": "false"
-                },
-                {
-                    "command": "speckit.workflowEditor.regenerate",
-                    "when": "false"
-                },
-                {
-                    "command": "speckit.workflowEditor.navigateToPhase",
-                    "when": "false"
-                },
-                {
-                    "command": "speckit.workflowEditor.editSource",
-                    "when": "false"
-                },
+        {
+          "command": "speckit.workflowEditor.refineSection",
+          "when": "false"
+        },
+        {
+          "command": "speckit.workflowEditor.removeSection",
+          "when": "false"
+        },
+        {
+          "command": "speckit.workflowEditor.addUserStory",
+          "when": "false"
+        },
+        {
+          "command": "speckit.workflowEditor.approveAndContinue",
+          "when": "false"
+        },
+        {
+          "command": "speckit.workflowEditor.regenerate",
+          "when": "false"
+        },
+        {
+          "command": "speckit.workflowEditor.navigateToPhase",
+          "when": "false"
+        },
+        {
+          "command": "speckit.workflowEditor.editSource",
+          "when": "false"
+        },
         {
           "command": "speckit.create"
         },
@@ -1381,7 +1381,7 @@
         }
       },
       {
-        "title": "Companion & Telemetry",
+        "title": "Companion 与遥测",
         "properties": {
           "speckit.companion.installPrompt": {
             "type": "boolean",
@@ -1410,12 +1410,12 @@
     "walkthroughs": [
       {
         "id": "speckitCompanionGettingStarted",
-        "title": "Get started with SpecKit Companion",
-        "description": "Read a real spec in about a minute, then take an idea of your own from spec to plan to tasks without leaving the editor.",
+        "title": "开始使用 SpecKit Companion",
+        "description": "用大约一分钟阅读一个真实规格，然后无需离开编辑器，就能把自己的想法从规格推进到计划和任务。",
         "steps": [
           {
             "id": "openFolder",
-            "title": "Open a project",
+            "title": "打开项目",
             "description": "SpecKit Companion reads specs out of a folder in your repo, so it needs a project open before it can show you anything.\n[Open Folder](command:vscode.openFolder)",
             "when": "workbenchState == empty || workspaceFolderCount == 0",
             "media": {
@@ -1428,7 +1428,7 @@
           },
           {
             "id": "sampleSpec",
-            "title": "See what a spec looks like",
+            "title": "了解规格的样子",
             "description": "The quickest way to understand this extension is to read a finished spec. This copies a small sample into your specs folder and opens it in the viewer. No CLI, no AI, no setup, and clicking again reopens it rather than making a second copy.\n[Open a live sample](command:speckit.openSampleSpec)",
             "media": {
               "svg": "assets/walkthrough/illustration-under-construction-spec-viewer.svg",
@@ -1440,7 +1440,7 @@
           },
           {
             "id": "installCli",
-            "title": "Install the Spec Kit CLI",
+            "title": "安装 Spec Kit CLI",
             "description": "Optional, and only for running phases. The viewer, review comments, and the sidebar work with no CLI at all. Install it when you want the specify, plan, tasks, and implement commands the extension dispatches to your AI.\n[Install Spec Kit CLI](command:speckit.installCli)",
             "media": {
               "markdown": "assets/walkthrough/install-cli.md"
@@ -1452,7 +1452,7 @@
           },
           {
             "id": "initializeWorkspace",
-            "title": "Set up this project",
+            "title": "配置当前项目",
             "description": "This writes the templates and phase commands your AI resolves into the repo, under a .specify folder. Reload the window once it finishes and the Specs view comes to life.\n[Initialize SpecKit](command:speckit.initWorkspace)",
             "media": {
               "markdown": "assets/walkthrough/initialize-workspace.md"
@@ -1464,7 +1464,7 @@
           },
           {
             "id": "firstSpec",
-            "title": "Write your first spec",
+            "title": "编写第一个规格",
             "description": "Describe the feature in a sentence and pick the AI you already use. The extension hands it the prompt and follows along as the spec, the plan, and the tasks land on disk.\n[New Spec](command:speckit.create)",
             "media": {
               "markdown": "assets/walkthrough/first-spec.md"
@@ -1475,7 +1475,7 @@
           },
           {
             "id": "runOverview",
-            "title": "Read the Overview it leaves behind",
+            "title": "阅读生成的概览",
             "description": "A spec with recorded activity opens on its Overview: why it exists, how long each phase took, the decisions made and what they rejected, and which test covers which requirement. It is what a reviewer reads instead of asking you again.\n[How the Overview works](https://github.com/alfredoperez/speckit-companion#overview-the-runs-story)",
             "media": {
               "svg": "assets/walkthrough/illustration-under-construction-overview.svg",
