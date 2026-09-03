@@ -4,7 +4,7 @@
   "description": "查看并掌控 AI 构建的一切。规格文档精简 60–68%，正确性不变。为 GitHub SpecKit 提供实时流水线、阶段耗时和 Living Specs，支持 Copilot、Claude、Gemini 等。",
   "version": "0.32.0",
   "license": "MIT",
-  "publisher": "alfredoperez",
+  "publisher": "lin52025i",
   "icon": "icon.png",
   "repository": {
     "type": "git",
