@@ -6,9 +6,9 @@ import { promisify } from 'util';
 
 const execAsync = promisify(exec);
 
-export const SPEC_KIT_TARGET_VERSION = '1.0.4';
-export const SPEC_KIT_TARGET_TAG = `v${SPEC_KIT_TARGET_VERSION}`;
-export const SPEC_KIT_SOURCE = `git+https://github.com/github/spec-kit.git@${SPEC_KIT_TARGET_TAG}`;
+export const SPEC_KIT_TARGET_VERSION = '1.0.5.dev0';
+export const SPEC_KIT_TARGET_COMMIT = 'a369c5c27f05ec51fe1667051cfe106f424975b5';
+export const SPEC_KIT_SOURCE = `git+https://github.com/github/spec-kit.git@${SPEC_KIT_TARGET_COMMIT}`;
 export const SPEC_KIT_INSTALL_COMMAND = `uv tool install specify-cli --from ${SPEC_KIT_SOURCE}`;
 export const SPEC_KIT_FORCE_INSTALL_COMMAND = `uv tool install specify-cli --force --from ${SPEC_KIT_SOURCE}`;
 
@@ -28,7 +28,7 @@ const CACHE_MS = 30_000;
 
 export function normalizeSpecKitVersion(value: string | null | undefined): string | null {
     if (!value) return null;
-    const match = value.match(/(\d+\.\d+\.\d+(?:[.-]?[0-9A-Za-z.-]+)?)/);
+    const match = value.match(/(\d+\.\d+\.\d+(?:\.dev\d+|(?:a|b|rc)\d+)?(?:\+[0-9A-Za-z.-]+)?)/);
     return match?.[1] ?? null;
 }
 
